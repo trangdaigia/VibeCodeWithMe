@@ -1,0 +1,6 @@
+{
+  "name": "LinguaFlow - Interactive Language Learning & AI Immersion",
+  "description": "Nền tảng học ngoại ngữ toàn diện dành cho người Việt: Tiếng Anh, Trung, Nhật, Hàn, Pháp, Đức, Tây Ban Nha từ đời sống, công việc, phỏng vấn đến luyện thi chứng chỉ.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
