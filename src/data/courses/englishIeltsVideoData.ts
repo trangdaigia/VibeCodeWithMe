@@ -64,6 +64,25 @@ export const ieltsVideoLessons: IeltsVideoLesson[] = [
         ],
         highlightTip: '🎯 Bí quyết: Tiêu đề đúng luôn trả lời được câu hỏi "Mục đích tác giả viết cả đoạn này để làm gì?"'
       }
+    ],
+    miniQuiz: [
+      {
+        question: 'Khi nào một nhận định trong câu hỏi được kết luận là NOT GIVEN?',
+        options: [
+          'Khi bài đọc hoàn toàn không có thông tin xác nhận hoặc bác bỏ, dù câu hỏi nghe có vẻ hợp lý ngoài đời.',
+          'Khi thông tin trong bài đọc đối lập 180 độ với câu hỏi.',
+          'Khi trong câu hỏi có chứa từ "always" hoặc "never".',
+          'Khi bài đọc có từ vựng đồng nghĩa với câu hỏi.'
+        ],
+        correctAnswer: 'Khi bài đọc hoàn toàn không có thông tin xác nhận hoặc bác bỏ, dù câu hỏi nghe có vẻ hợp lý ngoài đời.',
+        explanation: 'NOT GIVEN có nghĩa là không có căn cứ trong bài để chứng minh câu đó đúng hay sai, không được tự suy diễn kiến thức ngoài.'
+      },
+      {
+        question: 'Thời gian lý tưởng để đọc lướt (Skimming) toàn bộ một đoạn văn dài 150 từ là bao lâu?',
+        options: ['30 - 45 giây', '3 - 4 phút', '10 - 15 giây', '5 phút'],
+        correctAnswer: '30 - 45 giây',
+        explanation: 'Skimming chỉ đọc câu chủ đề, câu kết và từ nối để nắm ý chính, không dịch chi tiết.'
+      }
     ]
   },
   {
@@ -276,6 +295,136 @@ export const ieltsVideoLessons: IeltsVideoLesson[] = [
           'Dao động liên tục: Fluctuated wildly between X and Y.'
         ],
         formula: 'Trend = (Degree Adverb) + (Dynamic Verb) + (Precise Preposition)'
+      }
+    ],
+    miniQuiz: [
+      {
+        question: 'Đoạn văn nào đóng vai trò quan trọng nhất để bài viết Task 1 đạt từ Band 7.0 trở lên?',
+        options: ['Đoạn Tổng Quan (Overview)', 'Đoạn Mở bài (Introduction)', 'Đoạn Chi tiết 1', 'Đoạn Kết luận (Conclusion)'],
+        correctAnswer: 'Đoạn Tổng Quan (Overview)',
+        explanation: 'Tiêu chuẩn chấm thi Cambridge quy định rõ: Nếu không có Overview rõ ràng, bài viết không thể vượt qua Band 5.0 tiêu chí Task Achievement.'
+      }
+    ]
+  },
+  {
+    id: 'vid-ielts-gt-writing-masterclass',
+    title: 'IELTS GT Writing Task 1: Bí Kíp 3 Sắc Thái Thư (Formal, Semi-formal, Informal) Band 9.0',
+    skill: 'writing',
+    durationMinutes: 20,
+    durationLabel: '20:10',
+    instructorName: 'Dr. Sarah Jenkins',
+    instructorTitle: 'Cựu giám khảo Cambridge Assessment, Chuyên gia huấn luyện IELTS General Training',
+    badge: 'Chuyên đề GT Writing Band 9.0',
+    summary: 'Phân định dứt khoát 3 phong cách hành văn (Tone) trong bài viết thư: Formal (Khiếu nại, xin việc), Semi-formal (Chủ nhà, đồng nghiệp) và Informal (Bạn thân). Nắm vững nguyên tắc kết hợp lời chào và lời kết chuẩn để không bị trừ điểm Task Achievement.',
+    chapters: [
+      { time: '00:00', seconds: 0, title: 'Tổng quan tiêu chí chấm thi GT Task 1', content: 'Tối thiểu 150 từ trong 20 phút, 3 bullet points bắt buộc và yêu cầu tính nhất quán về văn phong (Tone Consistency).' },
+      { time: '03:40', seconds: 220, title: 'Thư Formal: Nguyên tắc không bao giờ viết tắt', content: 'Cách xưng hô "Dear Sir or Madam", kết thư "Yours faithfully" và kỹ thuật dùng từ ngữ trang trọng khách quan.' },
+      { time: '08:15', seconds: 495, title: 'Thư Semi-formal: Ranh giới lịch sự công sở', content: 'Xưng hô "Dear Mr./Ms. [Họ]", kết thư "Yours sincerely" và cấu trúc nêu yêu cầu nhã nhặn nhưng dứt khoát.' },
+      { time: '13:00', seconds: 780, title: 'Thư Informal: Ngôn ngữ tự nhiên & ấm áp', content: 'Xưng hô "Dear [Tên riêng]", kết thư "Warm regards", dùng từ nối hội thoại tự nhiên và viết tắt được phép.' },
+      { time: '17:30', seconds: 1050, title: 'Phân tích bài mẫu khiếu nại hãng hàng không', content: 'Từng câu một cấu trúc thư Band 9.0 đòi bồi thường hành lý và chuyến bay hoãn.' }
+    ],
+    keyTakeaways: [
+      'Không bao giờ trộn lẫn phong cách: Dùng "Dear Sir or Madam" nhưng lại kết thư bằng "Best regards" sẽ bị trừ điểm Tone & Register ngay lập tức.',
+      'Thư Formal: Tuyệt đối không viết tắt (viết "do not", "cannot", "I would appreciate" thay vì "don\'t", "can\'t").',
+      'Đảm bảo phát triển đồng đều cả 3 bullet points đề bài giao; bỏ sót 1 ý là mất Band 7.0 Task Achievement.',
+      'Độ dài tối ưu của bài viết thư nên nằm trong khoảng 170 - 200 từ.'
+    ],
+    subtitles: [
+      { timeSec: 0, en: "In General Training Task 1, maintaining the correct tone is your ticket to a Band 9.", vi: "Trong GT Task 1, giữ đúng phong cách hành văn chính là chìa khóa đạt Band 9." },
+      { timeSec: 6, en: "Examiners penalize any inconsistency between your salutation, body register, and sign-off.", vi: "Giám khảo sẽ trừ điểm nếu có bất kỳ sự không đồng nhất nào giữa lời chào, thân bài và lời kết." },
+      { timeSec: 13, en: "Remember: Unknown recipient means Dear Sir or Madam, paired strictly with Yours faithfully.", vi: "Hãy nhớ: Người nhận chưa biết tên phải chào Dear Sir or Madam, và bắt buộc kết bằng Yours faithfully." }
+    ],
+    slides: [
+      {
+        title: 'Ma Trận 3 Phong Cách Hành Văn (Tone Matrix)',
+        subtitle: 'Bảng đối chiếu chuẩn xác lời chào, thân bài và lời kết',
+        bulletPoints: [
+          'Formal: Dear Sir or Madam -> Yours faithfully, [Họ và tên đầy đủ]. Không viết tắt.',
+          'Semi-formal: Dear Mr./Ms. [Họ] -> Yours sincerely, [Họ và tên đầy đủ]. Lịch sự, chuyên nghiệp.',
+          'Informal: Dear [Tên riêng] -> Warm regards / Best wishes, [Tên riêng]. Thân mật, tự nhiên.'
+        ],
+        formula: 'Task Achievement = (All 3 Bullets Covered) + (Consistent Register) + (Appropriate Pairing)',
+        highlightTip: '⚠️ Bẫy trừ điểm: Không dùng "Hello Sir" hoặc "Hi Mr. Smith" trong văn bản thi IELTS!'
+      },
+      {
+        title: 'Cấu Trúc 4 Đoạn Thư Hoàn Hảo',
+        subtitle: 'Mô hình phân bổ thời gian 20 phút',
+        bulletPoints: [
+          'Đoạn 1 (2 phút): Lời chào + Nêu rõ lý do viết thư (Reason for writing).',
+          'Đoạn 2 (5 phút): Giải quyết Bullet point 1 với chi tiết xác thực.',
+          'Đoạn 3 (5 phút): Giải quyết Bullet point 2 (Tác động/khó khăn gặp phải).',
+          'Đoạn 4 (5 phút): Giải quyết Bullet point 3 (Biện pháp mong đợi/thời hạn) + Ký tên.',
+          'Kiểm tra lại (3 phút): Rà soát lỗi chia động từ, mạo từ và dấu câu.'
+        ],
+        highlightTip: '💡 Luôn chia đoạn rõ ràng bằng cách cách một dòng trắng giữa các đoạn để giám khảo dễ theo dõi.'
+      }
+    ],
+    miniQuiz: [
+      {
+        question: 'Khi viết thư Formal cho người quản lý mà không biết tên, lời kết nào sau đây là chuẩn mực nhất?',
+        options: ['Yours faithfully,', 'Yours sincerely,', 'Best regards,', 'Warmest wishes,'],
+        correctAnswer: 'Yours faithfully,',
+        explanation: 'Quy tắc Cambridge: Bắt đầu bằng "Dear Sir or Madam" thì phải kết bằng "Yours faithfully,".'
+      },
+      {
+        question: 'Trong thư Formal (Trang trọng), câu nào sau đây vi phạm phong cách hành văn?',
+        options: [
+          'I\'m writing because I can\'t accept this terrible service.',
+          'I am writing to register a formal complaint regarding the service received.',
+          'I would appreciate it if you could investigate this matter promptly.',
+          'Enclosed herewith are copies of the original booking receipts.'
+        ],
+        correctAnswer: 'I\'m writing because I can\'t accept this terrible service.',
+        explanation: 'Thư Formal tuyệt đối không được viết tắt (I\'m, can\'t) và không dùng cảm xúc thiếu chuyên nghiệp.'
+      }
+    ]
+  },
+  {
+    id: 'vid-ielts-gt-reading-section123',
+    title: 'IELTS GT Reading 34/40: Chiến Lược Chinh Phục 3 Section (Social -> Workplace -> General)',
+    skill: 'reading',
+    durationMinutes: 19,
+    durationLabel: '19:45',
+    instructorName: 'Michael Vance',
+    instructorTitle: 'Chuyên gia khảo thí IELTS General Training, Hội đồng Anh',
+    badge: 'Chuyên đề GT Reading 34/40',
+    summary: 'Chiến thuật làm bài đọc hiểu General Training: Phân bố thời gian 15 - 18 - 25 phút cho 3 Section, quét nhanh tờ rơi đời sống Section 1, bẫy nội quy lao động Section 2 và bài đọc tạp chí Section 3 để cán mốc 34-35/40 chuẩn Band 7.0+ khắt khe.',
+    chapters: [
+      { time: '00:00', seconds: 0, title: 'Thang điểm khắt khe của GT Reading', content: 'Tại sao cần đúng 34 câu mới đạt Band 7.0 GT trong khi Academic chỉ cần 30 câu.' },
+      { time: '03:30', seconds: 210, title: 'Section 1 (Social Survival): Quét tờ rơi trong 15 phút', content: 'Kỹ thuật định vị số điện thoại, điều kiện giảm giá, giờ chạy tàu xe và quy chế tham gia.' },
+      { time: '08:00', seconds: 480, title: 'Section 2 (Workplace Survival): Bẫy hợp đồng & nghỉ ốm', content: 'Xử lý các đoạn văn cẩm nang nhân viên, an toàn lao động, thỏa thuận TOIL và làm thêm giờ.' },
+      { time: '13:20', seconds: 800, title: 'Section 3 (General Reading): Bài báo dài chuyên khảo', content: 'Cách đối phó với bài đọc 700 - 900 từ về văn hóa, lịch sử, kỹ thuật truyền thống.' }
+    ],
+    keyTakeaways: [
+      'Không được chủ quan ở Section 1: Vì câu hỏi dễ nên bạn phải làm nhanh và đúng tuyệt đối 100% để dành thời gian cho Section 3.',
+      'Phân bổ thời gian: Section 1 tối đa 15 phút, Section 2 tối đa 18 phút, Section 3 tối thiểu 25 phút (dành 2 phút rà soát).',
+      'Trong văn bản công sở Section 2: Chú ý các điều kiện ràng buộc như "prior written approval", "exceeding seven consecutive days".',
+      'Mỗi câu sai ở GT khiến bạn rớt Band nhanh hơn gấp đôi so với Academic.'
+    ],
+    subtitles: [
+      { timeSec: 0, en: "General Training Reading texts seem simpler, but the grading scale is significantly harsher.", vi: "Bài đọc General Training trông có vẻ đơn giản hơn, nhưng thang điểm chấm lại khắt khe hơn đáng kể." },
+      { timeSec: 7, en: "To achieve a Band 7.0, you must score at least 34 out of 40 correct answers.", vi: "Để đạt Band 7.0, bạn phải đạt tối thiểu 34 trên 40 câu trả lời chính xác." },
+      { timeSec: 14, en: "Accuracy in Section 1 and 2 is non-negotiable; that is where your foundation is built.", vi: "Sự chính xác tuyệt đối ở Section 1 và 2 là điều kiện tiên quyết xây dựng điểm số của bạn." }
+    ],
+    slides: [
+      {
+        title: 'Cấu Trúc 3 Section Bài Thi IELTS GT Reading',
+        subtitle: 'Bản đồ phân bổ thời gian và ngữ liệu thực tế',
+        bulletPoints: [
+          'Section 1 (Social Survival): 2-3 mẩu tin ngắn (tờ rơi sự kiện, biểu phí tàu xe, thông tin khóa học). Thời gian: 15 phút.',
+          'Section 2 (Workplace Survival): 2 văn bản công sở (nội quy, chính sách nghỉ ốm, hợp đồng, an toàn lao động). Thời gian: 18 phút.',
+          'Section 3 (General Reading): 1 bài văn dài mang tính mô tả/phổ biến kiến thức từ tạp chí. Thời gian: 25 phút.'
+        ],
+        formula: 'GT Score Formula: (Section 1: 14/14) + (Section 2: 12/13) + (Section 3: 9/13) = 35/40 (Band 7.5)',
+        highlightTip: '⚠️ Mục tiêu vàng: Đạt trọn vẹn điểm ở Section 1 và 2 trước khi bước vào bài đọc dài Section 3!'
+      }
+    ],
+    miniQuiz: [
+      {
+        question: 'Để đạt Band 7.0 trong bài thi IELTS General Training Reading, thí sinh cần làm đúng bao nhiêu câu?',
+        options: ['Khoảng 34 – 35 / 40 câu', 'Khoảng 30 – 31 / 40 câu', 'Khoảng 27 – 28 / 40 câu', 'Khoảng 23 – 25 / 40 câu'],
+        correctAnswer: 'Khoảng 34 – 35 / 40 câu',
+        explanation: 'Vì ngữ liệu GT gần gũi với đời sống hơn Academic, thang điểm khắt khe hơn: Band 7.0 cần 34-35 câu (trong khi Academic chỉ cần 30-31 câu).'
       }
     ]
   }

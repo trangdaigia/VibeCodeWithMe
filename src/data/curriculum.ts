@@ -8,9 +8,18 @@ import { spanishCourse } from './courses/spanish';
 
 export type LearningTrack = 'daily' | 'workplace' | 'academic';
 
+export type ExerciseType = 
+  | 'flashcard' 
+  | 'sentence_build' 
+  | 'quiz_choice' 
+  | 'fill_blank' 
+  | 'listening_drill'
+  | 'speaking_drill'
+  | 'writing_drill';
+
 export interface Exercise {
   id: string;
-  type: 'flashcard' | 'sentence_build' | 'quiz_choice' | 'fill_blank' | 'listening_drill';
+  type: ExerciseType;
   prompt: string;
   targetText?: string;
   romanization?: string;
@@ -21,6 +30,14 @@ export interface Exercise {
   correctAnswer?: string;
   explanation?: string;
   culturalNote?: string;
+  // Enhanced Speaking & Writing drill properties
+  speakingHints?: string[];
+  targetPhonetic?: string;
+  requiredKeywords?: string[];
+  acceptableAnswers?: string[];
+  minWords?: number;
+  grammarFocus?: string;
+  sampleAnswers?: string[];
 }
 
 export interface Lesson {
@@ -111,6 +128,12 @@ export interface IeltsVideoLesson {
     bulletPoints: string[];
     formula?: string;
     highlightTip?: string;
+  }[];
+  miniQuiz?: {
+    question: string;
+    options: string[];
+    correctAnswer: string;
+    explanation: string;
   }[];
 }
 

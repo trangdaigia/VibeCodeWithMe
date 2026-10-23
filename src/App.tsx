@@ -43,6 +43,30 @@ export default function App() {
     return 150;
   });
 
+  const [dailyXpGoal, setDailyXpGoal] = useState<number>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('linguaflow_daily_goal');
+      return saved ? parseInt(saved, 10) : 50;
+    }
+    return 50;
+  });
+
+  const [todayXp, setTodayXp] = useState<number>(() => {
+    if (typeof window !== 'undefined') {
+      const today = new Date().toISOString().split('T')[0];
+      const savedDate = localStorage.getItem('linguaflow_today_date');
+      const savedXp = localStorage.getItem('linguaflow_today_xp');
+      if (savedDate === today && savedXp) {
+        return parseInt(savedXp, 10);
+      } else {
+        localStorage.setItem('linguaflow_today_date', today);
+        localStorage.setItem('linguaflow_today_xp', '30'); // Friendly initial progress for today
+        return 30;
+      }
+    }
+    return 30;
+  });
+
   const [streak, setStreak] = useState<number>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('linguaflow_streak');
@@ -111,6 +135,14 @@ export default function App() {
   }, [xp]);
 
   useEffect(() => {
+    localStorage.setItem('linguaflow_daily_goal', dailyXpGoal.toString());
+  }, [dailyXpGoal]);
+
+  useEffect(() => {
+    localStorage.setItem('linguaflow_today_xp', todayXp.toString());
+  }, [todayXp]);
+
+  useEffect(() => {
     localStorage.setItem('linguaflow_streak', streak.toString());
   }, [streak]);
 
@@ -124,11 +156,23 @@ export default function App() {
 
   const handleGainXp = (amount: number) => {
     setXp(prev => prev + amount);
+    setTodayXp(prev => {
+      const next = prev + amount;
+      const today = new Date().toISOString().split('T')[0];
+      localStorage.setItem('linguaflow_today_date', today);
+      localStorage.setItem('linguaflow_today_xp', next.toString());
+      return next;
+    });
     const today = new Date().toISOString().split('T')[0];
     const lastDate = localStorage.getItem('linguaflow_last_date');
     const { newStreak } = calculateStreak(lastDate, today, streak);
     setStreak(newStreak);
     localStorage.setItem('linguaflow_last_date', today);
+  };
+
+  const handleSetDailyGoal = (newGoal: number) => {
+    setDailyXpGoal(newGoal);
+    localStorage.setItem('linguaflow_daily_goal', newGoal.toString());
   };
 
   const handleCompleteLesson = (earnedXp: number) => {
@@ -170,6 +214,9 @@ export default function App() {
         onOpenLanguageModal={() => setIsLanguageModalOpen(true)}
         streak={streak}
         xp={xp}
+        dailyXpGoal={dailyXpGoal}
+        todayXp={todayXp}
+        onSetDailyGoal={handleSetDailyGoal}
       />
 
       {/* Main Content Viewport */}

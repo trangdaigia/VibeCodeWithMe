@@ -128,8 +128,8 @@ export const englishCourse: LanguageCourse = {
           track: 'daily',
           title: 'Làm quen & Chào hỏi tự nhiên',
           description: 'Cách người bản xứ mở lời chào, hỏi thăm và kết nối bạn bè mà không bị gượng gạo theo sách vở cũ.',
-          durationMinutes: 4,
-          xpReward: 30,
+          durationMinutes: 6,
+          xpReward: 40,
           exercises: [
             {
               id: 'en-e1',
@@ -143,6 +143,20 @@ export const englishCourse: LanguageCourse = {
               culturalNote: 'Người Anh/Mỹ thường trả lời ngắn gọn: "Pretty good, thanks! How about yourself?"'
             },
             {
+              id: 'en-e1-listen',
+              type: 'listening_drill',
+              prompt: 'Lắng nghe ngữ điệu chào hỏi thân mật giữa hai người bạn thân:',
+              audioText: 'Hey there! Long time no see, it is so good to run into you!',
+              options: [
+                'Chào hỏi thân thiết khi tình cờ gặp lại bạn cũ sau thời gian dài',
+                'Lời chào trang trọng trong cuộc phỏng vấn xin việc',
+                'Lời chào tạm biệt khi kết thúc buổi làm việc',
+                'Lời phàn nàn vì người khác đến muộn'
+              ],
+              correctAnswer: 'Chào hỏi thân thiết khi tình cờ gặp lại bạn cũ sau thời gian dài',
+              explanation: '"Long time no see" và "run into someone" là cụm từ kinh điển khi tình cờ gặp lại người quen.'
+            },
+            {
               id: 'en-e2',
               type: 'sentence_build',
               prompt: 'Sắp xếp câu: "Rất vui được gặp bạn, tôi vừa mới chuyển đến đây."',
@@ -151,13 +165,18 @@ export const englishCourse: LanguageCourse = {
               explanation: '"Just + V-quá khứ" diễn tả hành động vừa mới xảy ra trong quá khứ gần.'
             },
             {
-              id: 'en-e3',
-              type: 'quiz_choice',
-              prompt: 'Khi muốn xin phép ngắt lời ai đó một cách lịch sự, người bản xứ hay nói gì?',
-              options: ['Sorry to interrupt, but...', 'Stop talking please.', 'Listen to me now.', 'Hey you, be quiet.'],
-              correctAnswer: 'Sorry to interrupt, but...',
-              explanation: '"Sorry to interrupt, but..." là câu mở đầu kinh điển vừa lịch thiệp vừa chuyên nghiệp.',
-              audioText: 'Sorry to interrupt, but could I ask a quick question?'
+              id: 'en-e-speak1',
+              type: 'speaking_drill',
+              prompt: 'Luyện nói câu chào hỏi và biểu đạt niềm vui khi gặp lại bạn bè:',
+              targetText: 'How have you been lately? It is great to see you again!',
+              targetPhonetic: 'haʊ hæv juː biːn ˈleɪtli? ɪt ɪz ɡreɪt tuː siː juː əˈɡen!',
+              vietnameseMeaning: 'Dạo này bạn thế nào rồi? Rất vui được gặp lại bạn!',
+              audioText: 'How have you been lately? It is great to see you again!',
+              speakingHints: [
+                'Nhấn trọng âm vào từ "lately" và "great"',
+                'Lướt nhẹ cụm "have you been" với tốc độ tự nhiên',
+                'Lên giọng nhẹ ở cuối câu hỏi để tạo không khí ấm áp, chân thành'
+              ]
             },
             {
               id: 'en-e3b',
@@ -166,6 +185,31 @@ export const englishCourse: LanguageCourse = {
               options: ['a genuine', 'some real', 'the very', 'many'],
               correctAnswer: 'a genuine',
               explanation: '"It is a genuine pleasure to meet you" (Thật sự là một vinh hạnh lớn khi được gặp bạn) là cách biểu đạt trang nhã và chân thành.'
+            },
+            {
+              id: 'en-e-write1',
+              type: 'writing_drill',
+              prompt: 'Viết câu mở đầu chào hỏi và bày tỏ mong đợi được hợp tác cùng đối tác:',
+              vietnameseMeaning: 'Tình huống: Bạn gặp đối tác quốc tế mới tại buổi hội thảo. Hãy viết câu hoàn chỉnh chào mừng và bày tỏ mong muốn được hợp tác cùng họ.',
+              targetText: 'It is a pleasure to meet you, and I look forward to working together.',
+              acceptableAnswers: [
+                'It is a pleasure to meet you, and I look forward to working with you.',
+                'It is a real pleasure to meet you, and I look forward to our cooperation.',
+                'Nice to meet you, I look forward to working together.'
+              ],
+              requiredKeywords: ['pleasure', 'meet', 'forward'],
+              minWords: 6,
+              grammarFocus: 'Cấu trúc trang trọng: "It is a pleasure to meet you" + "look forward to + V-ing/Noun"',
+              explanation: 'Kết hợp hài hòa giữa sự lịch thiệp khi gặp gỡ và thái độ tích cực hướng tới tương lai hợp tác.'
+            },
+            {
+              id: 'en-e3',
+              type: 'quiz_choice',
+              prompt: 'Khi muốn xin phép ngắt lời ai đó một cách lịch sự trong cuộc trò chuyện, người bản xứ hay nói gì?',
+              options: ['Sorry to interrupt, but...', 'Stop talking please.', 'Listen to me now.', 'Hey you, be quiet.'],
+              correctAnswer: 'Sorry to interrupt, but...',
+              explanation: '"Sorry to interrupt, but..." là câu mở đầu kinh điển vừa lịch thiệp vừa chuyên nghiệp.',
+              audioText: 'Sorry to interrupt, but could I ask a quick question?'
             }
           ]
         },
@@ -174,8 +218,8 @@ export const englishCourse: LanguageCourse = {
           track: 'daily',
           title: 'Bắt chuyện xã giao (Small Talk) & Thời tiết',
           description: 'Nắm vững nghệ thuật Small Talk của người phương Tây để phá băng (break the ice) trong thang máy hay tiệc tùng.',
-          durationMinutes: 5,
-          xpReward: 35,
+          durationMinutes: 6,
+          xpReward: 40,
           exercises: [
             {
               id: 'en-e4',
@@ -194,15 +238,21 @@ export const englishCourse: LanguageCourse = {
               prompt: 'Điền từ thích hợp: "I am really looking ______ the weekend. Any plans?"',
               options: ['forward to', 'ahead of', 'up to', 'out for'],
               correctAnswer: 'forward to',
-              explanation: 'Cụm thành ngữ cố định "look forward to + Noun/V-ing" nghĩa là rất mong chờ, háo hức điều gì.'
+              explanation: 'Cấu trúc cố định "look forward to + Noun/V-ing" nghĩa là rất mong chờ, háo hức điều gì.'
             },
             {
-              id: 'en-e6',
-              type: 'quiz_choice',
-              prompt: 'Ai đó nói: "Have a great weekend!" Bạn nên đáp lại tự nhiên nhất như thế nào?',
-              options: ['Thanks, you too!', 'Yes, I will have it.', 'No problem.', 'I agree with you.'],
-              correctAnswer: 'Thanks, you too!',
-              explanation: '"Thanks, you too!" (Cảm ơn bạn, bạn cũng vậy nhé!) là câu phản xạ chuẩn tự nhiên nhất.'
+              id: 'en-e-speak2',
+              type: 'speaking_drill',
+              prompt: 'Luyện nói câu phá băng về thời tiết với ngữ điệu ngạc nhiên, tự nhiên:',
+              targetText: 'Can you believe this gorgeous weather we are having today?',
+              targetPhonetic: 'kæn juː bɪˈliːv ðɪs ˈɡɔːdʒəs ˈweðər wiː ɑːr ˈhævɪŋ təˈdeɪ?',
+              vietnameseMeaning: 'Bạn có tin nổi thời tiết hôm nay tuyệt đẹp thế này không?',
+              audioText: 'Can you believe this gorgeous weather we are having today?',
+              speakingHints: [
+                'Nhấn giọng vào tính từ "gorgeous" (tuyệt đẹp)',
+                'Cụm "weather we are having" phát âm liền mạch không dừng',
+                'Giữ giọng điệu cởi mở, thân thiện'
+              ]
             },
             {
               id: 'en-e6b',
@@ -211,6 +261,30 @@ export const englishCourse: LanguageCourse = {
               targetText: 'The weather is gorgeous today, crisp and sunny.',
               wordTokens: ['The weather', 'is gorgeous', 'today,', 'crisp', 'and sunny.', 'bad', 'rainy'],
               explanation: '"Crisp and sunny" (se lạnh dễ chịu và chan hòa ánh nắng) là cách miêu tả thời tiết rất giàu cảm xúc của người bản xứ.'
+            },
+            {
+              id: 'en-e-write2',
+              type: 'writing_drill',
+              prompt: 'Viết câu small talk chúc đồng nghiệp cuối tuần vui vẻ và hỏi kế hoạch:',
+              vietnameseMeaning: 'Tình huống: Chiều thứ Sáu khi tan sở tại sảnh thang máy, bạn gặp đồng nghiệp cùng phòng. Hãy viết một câu chúc họ cuối tuần vui vẻ và hỏi xem họ có dự định gì thú vị không.',
+              targetText: 'Have a wonderful weekend ahead, do you have any fun plans?',
+              acceptableAnswers: [
+                'Have a great weekend, do you have any plans?',
+                'Have a wonderful weekend ahead, any exciting plans?',
+                'Have a nice weekend, do you have any plans for the weekend?'
+              ],
+              requiredKeywords: ['weekend', 'plans'],
+              minWords: 6,
+              grammarFocus: 'Thì hiện tại đơn kết hợp cấu trúc lời chúc: "Have a wonderful weekend ahead" + câu hỏi "Do you have any plans?"',
+              explanation: 'Cách hỏi này vừa tôn trọng không gian riêng tư vừa thể hiện sự quan tâm thân tình.'
+            },
+            {
+              id: 'en-e6',
+              type: 'quiz_choice',
+              prompt: 'Ai đó nói: "Have a great weekend!" Bạn nên đáp lại tự nhiên nhất như thế nào?',
+              options: ['Thanks, you too!', 'Yes, I will have it.', 'No problem.', 'I agree with you.'],
+              correctAnswer: 'Thanks, you too!',
+              explanation: '"Thanks, you too!" (Cảm ơn bạn, bạn cũng vậy nhé!) là câu phản xạ chuẩn tự nhiên nhất.'
             }
           ]
         },
@@ -219,8 +293,8 @@ export const englishCourse: LanguageCourse = {
           track: 'daily',
           title: 'Hẹn gặp, Rủ bạn bè đi cà phê & Từ chối khéo léo',
           description: 'Cách đề xuất lịch hẹn, từ chối khéo khi bận (Rain check) mà không làm mất lòng người khác.',
-          durationMinutes: 5,
-          xpReward: 35,
+          durationMinutes: 6,
+          xpReward: 40,
           exercises: [
             {
               id: 'en-e7',
@@ -242,12 +316,42 @@ export const englishCourse: LanguageCourse = {
               explanation: 'Cấu trúc rủ rê thân mật: "Are you free for [activity] + [time]?"'
             },
             {
+              id: 'en-e-speak3',
+              type: 'speaking_drill',
+              prompt: 'Luyện nói câu rủ bạn bè đi cà phê tâm sự dịp cuối tuần:',
+              targetText: 'Are you free for a quick coffee this Friday afternoon?',
+              targetPhonetic: 'ɑːr juː friː fɔːr ə kwɪk ˈkɒfi ðɪs ˈfraɪdeɪ ˌɑːftəˈnuːn?',
+              vietnameseMeaning: 'Chiều thứ Sáu này bạn có rảnh uống ly cà phê nhanh với mình không?',
+              audioText: 'Are you free for a quick coffee this Friday afternoon?',
+              speakingHints: [
+                'Nối âm nhẹ giữa "free for a" -> /friː fər ə/',
+                'Nhấn âm vào "quick coffee" và "Friday"',
+                'Lên giọng ở cuối câu hỏi Yes/No'
+              ]
+            },
+            {
               id: 'en-e8-catchup',
               type: 'fill_blank',
               prompt: 'Điền cụm từ rủ bạn bè: "It has been ages! We should definitely ______ sometime next week."',
               options: ['catch up', 'bring down', 'take after', 'look out'],
               correctAnswer: 'catch up',
               explanation: '"Catch up" (gặp gỡ hàn huyên tâm sự sau thời gian dài không gặp).'
+            },
+            {
+              id: 'en-e-write3',
+              type: 'writing_drill',
+              prompt: 'Viết câu từ chối khéo léo lời mời ăn tối và đề xuất gặp vào tuần sau:',
+              vietnameseMeaning: 'Tình huống: Bạn nhận được lời rủ đi ăn tối tối nay nhưng đang bận chuẩn bị báo cáo. Hãy dùng cụm "rain check" để từ chối khéo léo và đề xuất gặp vào tuần sau.',
+              targetText: 'Can I please take a rain check and catch up sometime next week?',
+              acceptableAnswers: [
+                'Can I take a rain check and meet up next week?',
+                'Could I take a rain check on that and catch up next week?',
+                'I have to take a rain check, but let us catch up next week.'
+              ],
+              requiredKeywords: ['rain check', 'next week'],
+              minWords: 6,
+              grammarFocus: 'Cụm thành ngữ: "take a rain check" kết hợp cụm rủ rê "catch up next week"',
+              explanation: 'Lời từ chối lịch thiệp giúp người mời không cảm thấy bị hắt hủi và mở ra cơ hội gặp lại.'
             }
           ]
         },
@@ -256,8 +360,8 @@ export const englishCourse: LanguageCourse = {
           track: 'daily',
           title: 'Mua Sắm Tại Trung Tâm Thương Mại & Đổi Trả Hàng (Shopping & Returns)',
           description: 'Hỏi size quần áo, phòng thử đồ, kiểm tra chính sách đổi trả (Refund/Exchange policy) và xin hóa đơn quà tặng.',
-          durationMinutes: 5,
-          xpReward: 35,
+          durationMinutes: 6,
+          xpReward: 40,
           exercises: [
             {
               id: 'en-e8b',
@@ -279,6 +383,36 @@ export const englishCourse: LanguageCourse = {
               explanation: 'Cấu trúc đổi hàng hóa: "Exchange [Item A] for [Item B]".'
             },
             {
+              id: 'en-e-speak4',
+              type: 'speaking_drill',
+              prompt: 'Luyện nói câu hỏi lịch thiệp khi tìm size quần áo:',
+              targetText: 'Excuse me, do you happen to have this in a larger size?',
+              targetPhonetic: 'ɪkˈskjuːz miː, duː juː ˈhæpən tuː hæv ðɪs ɪn ə ˈlɑːdʒər saɪz?',
+              vietnameseMeaning: 'Xin lỗi bạn, mẫu này bạn có kích cỡ lớn hơn không ạ?',
+              audioText: 'Excuse me, do you happen to have this in a larger size?',
+              speakingHints: [
+                'Bắt đầu bằng cụm "Excuse me" mềm mại',
+                'Nối âm: "this in a" -> /ðɪs ɪn ə/',
+                'Nhấn mạnh vào từ "larger size"'
+              ]
+            },
+            {
+              id: 'en-e-write4',
+              type: 'writing_drill',
+              prompt: 'Viết câu yêu cầu đổi hàng hoặc xin hoàn tiền tại quầy dịch vụ khách hàng:',
+              vietnameseMeaning: 'Tình huống: Chiếc áo bạn mua bị rách đường chỉ. Hãy viết một câu lịch thiệp xin đổi sang chiếc áo mới hoặc hoàn tiền và cho biết bạn vẫn giữ hóa đơn mua hàng.',
+              targetText: 'I would like to exchange this item or get a refund with my receipt.',
+              acceptableAnswers: [
+                'Could I please exchange this item or get a full refund with my receipt?',
+                'I would like to return this defective item for a refund, here is my receipt.',
+                'Can I get a refund or exchange for this item with my receipt?'
+              ],
+              requiredKeywords: ['exchange', 'refund', 'receipt'],
+              minWords: 6,
+              grammarFocus: 'Cấu trúc công sở: "would like to exchange... or get a refund with my receipt"',
+              explanation: 'Sử dụng từ vựng chính xác như "exchange", "refund" và "receipt" giúp quầy dịch vụ giải quyết nhanh gọn.'
+            },
+            {
               id: 'en-e8d',
               type: 'quiz_choice',
               prompt: 'Khi muốn được hoàn lại tiền vào thẻ vì hàng bị lỗi, bạn nói với quầy dịch vụ khách hàng như thế nào?',
@@ -298,8 +432,8 @@ export const englishCourse: LanguageCourse = {
           track: 'daily',
           title: 'Khen Ngợi, Đáp Lại Lời Khen & Lòng Biết Ơn (Compliments & Gratitude)',
           description: 'Nghệ thuật khen ngợi trang phục, thành tựu của bạn bè và cách đáp lại tự nhiên, khiêm tốn nhưng tự tin.',
-          durationMinutes: 5,
-          xpReward: 35,
+          durationMinutes: 6,
+          xpReward: 40,
           exercises: [
             {
               id: 'en-e1-comp1',
@@ -313,6 +447,43 @@ export const englishCourse: LanguageCourse = {
               culturalNote: 'Người bản xứ thích được khen cụ thể về gu thẩm mỹ thay vì những câu khen chung chung.'
             },
             {
+              id: 'en-e-speak-comp',
+              type: 'speaking_drill',
+              prompt: 'Luyện nói câu khen ngợi đồng nghiệp về bài thuyết trình xuất sắc:',
+              targetText: 'You did a fantastic job on the presentation today!',
+              targetPhonetic: 'juː dɪd ə fænˈtæstɪk dʒɒb ɒn ðə ˌpreznˈteɪʃn təˈdeɪ!',
+              vietnameseMeaning: 'Hôm nay bạn đã làm bài thuyết trình cực kỳ xuất sắc!',
+              audioText: 'You did a fantastic job on the presentation today!',
+              speakingHints: [
+                'Nhấn mạnh vào từ "fantastic job"',
+                'Ngữ điệu vui tươi, chân thành'
+              ]
+            },
+            {
+              id: 'en-e1-comp3',
+              type: 'sentence_build',
+              prompt: 'Sắp xếp câu: "Tôi thật sự không thể hoàn thành nó nếu không có sự giúp đỡ quý báu của bạn."',
+              targetText: 'I could not have done it without your valuable help.',
+              wordTokens: ['I could not', 'have done it', 'without your', 'valuable', 'help.', 'alone', 'problem'],
+              explanation: 'Cấu trúc giả định quá khứ "could not have done it without..." thể hiện sự trân trọng sâu sắc.'
+            },
+            {
+              id: 'en-e-write-comp',
+              type: 'writing_drill',
+              prompt: 'Viết câu cảm ơn sâu sắc gửi tới người đã hỗ trợ bạn trong công việc:',
+              vietnameseMeaning: 'Tình huống: Một người đồng nghiệp đã dành thời gian hỗ trợ bạn giải quyết xong dự án gấp. Hãy viết câu cảm ơn chân thành bày tỏ lòng biết ơn của bạn.',
+              targetText: 'Thank you so much, I truly appreciate your valuable support and guidance.',
+              acceptableAnswers: [
+                'Thank you so much, I really appreciate your valuable support.',
+                'Thank you very much, I appreciate your wonderful support on this project.',
+                'I truly appreciate your kind support and help with this project.'
+              ],
+              requiredKeywords: ['appreciate', 'support'],
+              minWords: 6,
+              grammarFocus: 'Cấu trúc tri ân: "I truly appreciate your + [support/help/guidance]"',
+              explanation: 'Sử dụng động từ "appreciate" thay cho "thank you" thông thường mang tính lịch thiệp và chuyên nghiệp rất cao.'
+            },
+            {
               id: 'en-e1-comp2',
               type: 'quiz_choice',
               prompt: 'Khi ai đó khen: "You did a fantastic presentation today!", cách đáp lại tự nhiên và khiêm tốn nhất là gì?',
@@ -324,14 +495,6 @@ export const englishCourse: LanguageCourse = {
               ],
               correctAnswer: 'Thank you so much! I really appreciate the kind words.',
               explanation: '"Thank you so much! I really appreciate the kind words." thể hiện sự tự tin và lòng biết ơn nhã nhặn.'
-            },
-            {
-              id: 'en-e1-comp3',
-              type: 'sentence_build',
-              prompt: 'Sắp xếp câu: "Tôi thật sự không thể hoàn thành nó nếu không có sự giúp đỡ quý báu của bạn."',
-              targetText: 'I could not have done it without your valuable help.',
-              wordTokens: ['I could not', 'have done it', 'without your', 'valuable', 'help.', 'alone', 'problem'],
-              explanation: 'Cấu trúc giả định quá khứ "could not have done it without..." thể hiện sự trân trọng sâu sắc.'
             }
           ]
         }
@@ -350,7 +513,7 @@ export const englishCourse: LanguageCourse = {
           track: 'daily',
           title: 'Gọi món tại Nhà hàng, Chế độ ăn & Văn hóa Tiền Tip',
           description: 'Cách gọi món lịch sự, hỏi món đặc biệt (specials), dị ứng thực phẩm và nắm vững văn hóa tiền tip tại Mỹ và Châu Âu.',
-          durationMinutes: 5,
+          durationMinutes: 6,
           xpReward: 40,
           exercises: [
             {
@@ -373,12 +536,18 @@ export const englishCourse: LanguageCourse = {
               explanation: 'Cách ra hiệu lịch sự cho bồi bàn khi cả bàn đã xem xong thực đơn.'
             },
             {
-              id: 'en-e11',
-              type: 'quiz_choice',
-              prompt: 'Khi muốn chia hóa đơn tiền ăn đều cho mỗi người trong nhóm, bạn nói với phục vụ thế nào?',
-              options: ['Could we split the bill, please?', 'Give me two bills now.', 'We pay separated.', 'I want half money.'],
-              correctAnswer: 'Could we split the bill, please?',
-              explanation: '"Split the bill" (hoặc "separate checks") là cách nói tự nhiên chuẩn xác nhất.'
+              id: 'en-e-speak-food',
+              type: 'speaking_drill',
+              prompt: 'Luyện nói câu gọi món kèm lưu ý nước sốt riêng:',
+              targetText: 'Could I please get the grilled salmon with dressing on the side?',
+              targetPhonetic: 'kʊd aɪ pliːz ɡet ðə ɡrɪld ˈsæmən wɪð ˈdresɪŋ ɒn ðə saɪd?',
+              vietnameseMeaning: 'Cho tôi xin món cá hồi nướng, để nước sốt riêng ra đĩa nhé.',
+              audioText: 'Could I please get the grilled salmon with dressing on the side?',
+              speakingHints: [
+                'Nối âm: "Could I please" -> /kʊd aɪ pliːz/',
+                'Lưu ý âm "salmon" chữ "l" là âm câm, đọc là /ˈsæm.ən/',
+                'Cụm "on the side" nhấn nhẹ vào "side"'
+              ]
             },
             {
               id: 'en-e11b',
@@ -387,6 +556,30 @@ export const englishCourse: LanguageCourse = {
               options: ['Medium-rare,', 'Well-done,', 'Burnt,', 'Cold,'],
               correctAnswer: 'Medium-rare,',
               explanation: '"Medium-rare" là độ chín tái vừa, bên ngoài cháy xém nhẹ, bên trong hồng ấm mọng nước.'
+            },
+            {
+              id: 'en-e-write-food',
+              type: 'writing_drill',
+              prompt: 'Viết câu xin tính tiền và chia đều hóa đơn cho nhóm:',
+              vietnameseMeaning: 'Tình huống: Cả nhóm ăn xong tại nhà hàng. Hãy gọi phục vụ để xin hóa đơn thanh toán và đề nghị chia đều tiền ăn cho mọi người.',
+              targetText: 'Could we please have the bill and split it evenly?',
+              acceptableAnswers: [
+                'Could we have the bill and split it please?',
+                'Could you please split the bill for us?',
+                'Can we please get the bill and split it evenly?'
+              ],
+              requiredKeywords: ['bill', 'split'],
+              minWords: 6,
+              grammarFocus: 'Cấu trúc yêu cầu lịch sự: "Could we please have the bill and split it evenly?"',
+              explanation: '"Split the bill evenly" nghĩa là chia đều hóa đơn cho mỗi người.'
+            },
+            {
+              id: 'en-e11',
+              type: 'quiz_choice',
+              prompt: 'Khi muốn chia hóa đơn tiền ăn đều cho mỗi người trong nhóm, bạn nói với phục vụ thế nào?',
+              options: ['Could we split the bill, please?', 'Give me two bills now.', 'We pay separated.', 'I want half money.'],
+              correctAnswer: 'Could we split the bill, please?',
+              explanation: '"Split the bill" (hoặc "separate checks") là cách nói tự nhiên chuẩn xác nhất.'
             }
           ]
         },
@@ -395,7 +588,7 @@ export const englishCourse: LanguageCourse = {
           track: 'daily',
           title: 'Check-in Khách sạn & Giao thông Công cộng',
           description: 'Nhận phòng khách sạn, yêu cầu đổi phòng khi gặp sự cố máy lạnh/tiếng ồn và hỏi đường đi phương tiện công cộng.',
-          durationMinutes: 5,
+          durationMinutes: 6,
           xpReward: 40,
           exercises: [
             {
@@ -424,6 +617,35 @@ export const englishCourse: LanguageCourse = {
               targetText: 'Is it possible to request a late checkout around one PM?',
               wordTokens: ['Is it possible', 'to request', 'a late checkout', 'around', 'one PM?', 'early', 'now'],
               explanation: '"Late checkout" là dịch vụ trả phòng muộn sau giờ quy định (thường là 11h hoặc 12h trưa).'
+            },
+            {
+              id: 'en-e-speak-hotel',
+              type: 'speaking_drill',
+              prompt: 'Luyện nói câu khiếu nại sự cố phòng nghỉ lịch thiệp:',
+              targetText: 'The air conditioner in my room is not working properly.',
+              targetPhonetic: 'ðiː eə kənˈdɪʃənər ɪn maɪ ruːm ɪz nɒt ˈwɜːkɪŋ ˈprɒpəli.',
+              vietnameseMeaning: 'Hệ thống điều hòa trong phòng tôi đang không hoạt động bình thường.',
+              audioText: 'The air conditioner in my room is not working properly.',
+              speakingHints: [
+                'Trọng âm rơi vào "air conditioner" và "properly"',
+                'Giọng điệu nhã nhặn, tôn trọng đối phương'
+              ]
+            },
+            {
+              id: 'en-e-write-hotel',
+              type: 'writing_drill',
+              prompt: 'Viết câu hỏi xin trả phòng trễ tại quầy lễ tân khách sạn:',
+              vietnameseMeaning: 'Tình huống: Do chuyến bay của bạn cất cánh vào chiều tối, bạn muốn đề nghị lễ tân cho phép trả phòng trễ (late checkout) vào khoảng 1 giờ chiều.',
+              targetText: 'Is it possible to request a late checkout around one PM?',
+              acceptableAnswers: [
+                'Could I please request a late checkout around one PM?',
+                'Is it possible to have a late checkout until one PM?',
+                'May I request a late checkout at one PM?'
+              ],
+              requiredKeywords: ['request', 'checkout'],
+              minWords: 6,
+              grammarFocus: 'Cấu trúc lễ tân khách sạn: "Is it possible to request a late checkout around [time]?"',
+              explanation: '"Late checkout" là thuật ngữ tiêu chuẩn quốc tế trong ngành khách sạn.'
             }
           ]
         },
@@ -595,6 +817,35 @@ export const englishCourse: LanguageCourse = {
               options: ['reminder', 'threat', 'shout', 'worry'],
               correctAnswer: 'reminder',
               explanation: '"Just a gentle reminder that..." là cách nhắc nhở deadline thanh lịch và chuyên nghiệp nhất.'
+            },
+            {
+              id: 'en-e-speak-email',
+              type: 'speaking_drill',
+              prompt: 'Luyện nói câu mở đầu cuộc gọi follow-up công việc chuyên nghiệp:',
+              targetText: 'I am following up on our discussion regarding the project budget.',
+              targetPhonetic: 'aɪ æm ˈfɒləʊɪŋ ʌp ɒn ˈaʊə dɪˈskʌʃn rɪˈɡɑːdɪŋ ðə ˈprɒdʒekt ˈbʌdʒɪt.',
+              vietnameseMeaning: 'Tôi liên hệ để tiếp nối trao đổi của chúng ta về ngân sách dự án.',
+              audioText: 'I am following up on our discussion regarding the project budget.',
+              speakingHints: [
+                'Cụm "following up on" phát âm liên tục',
+                'Nhấn mạnh vào "discussion" và "project budget"'
+              ]
+            },
+            {
+              id: 'en-e-write-email',
+              type: 'writing_drill',
+              prompt: 'Viết câu mở đầu email thông báo gửi kèm tài liệu cho đối tác xem xét:',
+              vietnameseMeaning: 'Tình huống: Bạn gửi email cho khách hàng hoặc đối tác, thông báo đã đính kèm tài liệu tóm tắt dự án để họ xem xét và góp ý.',
+              targetText: 'Please find the summary attached for your review, and let me know your feedback.',
+              acceptableAnswers: [
+                'Please find the attached document for your review.',
+                'Please find the summary attached for your review.',
+                'Please find attached the file for your review and feedback.'
+              ],
+              requiredKeywords: ['attached', 'review'],
+              minWords: 6,
+              grammarFocus: 'Cấu trúc email công sở: "Please find [item] attached for your review"',
+              explanation: 'Đây là quy chuẩn vàng trong thư từ kinh doanh quốc tế.'
             }
           ]
         },
@@ -603,7 +854,7 @@ export const englishCourse: LanguageCourse = {
           track: 'workplace',
           title: 'Đóng Góp Ý Kiến & Phản Biện Xây Dựng Trong Cuộc Họp',
           description: 'Cách ngắt lời khéo léo, đồng ý một phần và đưa ra phản biện mang tính xây dựng (constructive feedback).',
-          durationMinutes: 5,
+          durationMinutes: 6,
           xpReward: 45,
           exercises: [
             {
@@ -618,12 +869,41 @@ export const englishCourse: LanguageCourse = {
               culturalNote: 'Trong văn hóa doanh nghiệp phương Tây, việc đặt câu hỏi phản biện chứng tỏ bạn đang đóng góp tích cực.'
             },
             {
+              id: 'en-e-speak-meeting',
+              type: 'speaking_drill',
+              prompt: 'Luyện nói câu phản biện xây dựng với ngữ điệu khách quan, lịch thiệp:',
+              targetText: 'I see your point, but have we considered the scalability issue?',
+              targetPhonetic: 'aɪ siː jɔː pɔɪnt, bʌt hæv wiː kənˈsɪdəd ðə ˌskeɪləˈbɪləti ˈɪʃuː?',
+              vietnameseMeaning: 'Tôi hiểu góc nhìn của bạn, nhưng liệu chúng ta đã cân nhắc đến khả năng mở rộng chưa?',
+              audioText: 'I see your point, but have we considered the scalability issue?',
+              speakingHints: [
+                'Hạ giọng nhẹ ở vế đầu "I see your point"',
+                'Nhấn mạnh vào từ khóa quan trọng "scalability issue"'
+              ]
+            },
+            {
               id: 'en-e18',
               type: 'sentence_build',
               prompt: 'Sắp xếp câu: "Tôi hoàn toàn đồng tình với đề xuất của David."',
               targetText: 'I am fully aligned with David on this proposal.',
               wordTokens: ['I am', 'fully aligned', 'with David', 'on this', 'proposal.', 'disagree', 'yesterday'],
               explanation: '"Aligned with" là thuật ngữ công sở cao cấp thể hiện sự đồng thuận quan điểm.'
+            },
+            {
+              id: 'en-e-write-meeting',
+              type: 'writing_drill',
+              prompt: 'Viết câu bày tỏ sự đồng thuận với đề xuất dự án trong buổi họp:',
+              vietnameseMeaning: 'Tình huống: Đồng nghiệp vừa trình bày một ý tưởng cải tiến quy trình. Hãy viết một câu khẳng định bạn hoàn toàn ủng hộ đề xuất này vì nó giúp tối ưu hóa hiệu quả.',
+              targetText: 'I am fully aligned with this proposal because it enhances our efficiency.',
+              acceptableAnswers: [
+                'I am fully aligned with this proposal and support it completely.',
+                'I am aligned with this proposal because it improves our workflow.',
+                'I fully support this proposal and agree with the approach.'
+              ],
+              requiredKeywords: ['aligned', 'proposal'],
+              minWords: 6,
+              grammarFocus: 'Cấu trúc tán thành quan điểm: "I am fully aligned with [someone/proposal]"',
+              explanation: '"Aligned with" tạo phong thái tự tin, chuyên nghiệp hơn rất nhiều so với "I agree".'
             },
             {
               id: 'en-e18-dev',

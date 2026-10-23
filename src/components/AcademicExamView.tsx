@@ -37,7 +37,13 @@ import {
   Briefcase,
   Mail,
   Compass,
-  FileCheck
+  FileCheck,
+  Calculator,
+  Layers,
+  BookCheck,
+  Copy,
+  Download,
+  Search
 } from 'lucide-react';
 import { LanguageCourse, ExamInfo, ExamQuestion, WritingModelPrompt, SpeakingCueCard, IeltsTestSet, IeltsVideoLesson } from '../data/curriculum';
 import {
@@ -48,6 +54,11 @@ import {
   evaluateMockExamSession
 } from '../utils/ieltsMockEngine';
 import { speakText } from '../utils/speech';
+import { IeltsWritingLab } from './ielts/IeltsWritingLab';
+import { IeltsSpeakingLab } from './ielts/IeltsSpeakingLab';
+import { IeltsVocabHub } from './ielts/IeltsVocabHub';
+import { IeltsBandCalculator } from './ielts/IeltsBandCalculator';
+import { ieltsTopicVocabularies } from '../data/courses/englishIeltsVocabData';
 
 interface AcademicExamViewProps {
   course: LanguageCourse;
@@ -104,6 +115,14 @@ export const AcademicExamView: React.FC<AcademicExamViewProps> = ({ course, onGa
   const [videoSlideIndex, setVideoSlideIndex] = useState(0);
   const [activeSubtitleIndex, setActiveSubtitleIndex] = useState(0);
   const [videoPlaybackSpeed, setVideoPlaybackSpeed] = useState<number>(1.0);
+  const [videoQuizAnswers, setVideoQuizAnswers] = useState<Record<number, string>>({});
+  const [videoQuizSubmitted, setVideoQuizSubmitted] = useState<Record<number, boolean>>({});
+  const [studentVideoNotes, setStudentVideoNotes] = useState<Record<string, string>>({});
+  const [isVideoNotesCopied, setIsVideoNotesCopied] = useState<boolean>(false);
+
+  // Candidate Scratchpad inside Mock Exam Engine
+  const [mockCandidateScratchpad, setMockCandidateScratchpad] = useState<string>('');
+  const [isScratchpadOpen, setIsScratchpadOpen] = useState<boolean>(false);
 
   const activeExam: ExamInfo | undefined = course.examInfo[selectedExamIndex] || course.examInfo[0];
   const availableTestSets: IeltsTestSet[] = activeExam?.testSets || [];
@@ -560,9 +579,9 @@ export const AcademicExamView: React.FC<AcademicExamViewProps> = ({ course, onGa
         )}
 
         {/* Navigation Tabs Bar */}
-        <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between flex-wrap gap-2">
-          <div className="flex items-center gap-1.5 flex-wrap text-xs">
-            {/* FEATURED: RANDOMIZED MOCK EXAM ENGINE BUTTON */}
+        <div className="mt-4 pt-4 border-t border-slate-100 space-y-3">
+          <div className="flex items-center gap-2 flex-wrap text-xs">
+            {/* 1. RANDOMIZED MOCK EXAM ENGINE BUTTON */}
             <button
               onClick={() => {
                 setIsEngineActive(true);
@@ -581,17 +600,65 @@ export const AcademicExamView: React.FC<AcademicExamViewProps> = ({ course, onGa
               </span>
             </button>
 
-            {/* Masterclass Video Tab */}
+            {/* 2. Practice Questions Browser */}
+            <button
+              onClick={() => {
+                setActiveTab('all');
+                setIsEngineActive(false);
+              }}
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl font-bold transition-colors cursor-pointer border ${
+                (activeTab === 'all' || activeTab === 'listening' || activeTab === 'reading' || activeTab === 'writing' || activeTab === 'speaking') && !isEngineActive
+                  ? 'bg-indigo-600 text-white border-indigo-600 shadow-xs'
+                  : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+              }`}
+            >
+              <BookOpen className="w-3.5 h-3.5" />
+              <span>Luyện Đề 4 Kỹ Năng ({currentQuestions.length} câu)</span>
+            </button>
+
+            {/* 3. Interactive Writing Lab */}
+            <button
+              onClick={() => {
+                setActiveTab('writing-lab');
+                setIsEngineActive(false);
+              }}
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl font-bold transition-colors cursor-pointer border ${
+                (activeTab === 'writing-lab' || activeTab === 'writing-models') && !isEngineActive
+                  ? 'bg-indigo-600 text-white border-indigo-600 shadow-xs'
+                  : 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border-indigo-200'
+              }`}
+            >
+              <PenTool className="w-3.5 h-3.5" />
+              <span>Phòng Luyện Viết (Writing Lab)</span>
+            </button>
+
+            {/* 4. Speaking Audio Lab */}
+            <button
+              onClick={() => {
+                setActiveTab('speaking-lab');
+                setIsEngineActive(false);
+              }}
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl font-bold transition-colors cursor-pointer border ${
+                (activeTab === 'speaking-lab' || activeTab === 'speaking-simulator') && !isEngineActive
+                  ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
+                  : 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border-emerald-200'
+              }`}
+            >
+              <Mic className="w-3.5 h-3.5" />
+              <span>Phòng Thu Âm Nói (Speaking Lab)</span>
+            </button>
+
+            {/* 5. Masterclass Video Tab */}
             {availableVideoLessons.length > 0 && (
               <button
                 onClick={() => {
                   setActiveTab('video-lessons');
                   setIsEngineActive(false);
                 }}
-                className={`flex items-center gap-1.5 px-3 py-2 rounded-xl font-bold transition-colors cursor-pointer ${
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-xl font-bold transition-colors cursor-pointer border ${
                   activeTab === 'video-lessons' && !isEngineActive
-                    ? 'bg-rose-600 text-white shadow-xs'
-                    : 'bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200'
+                    ? 'bg-rose-600 text-white border-rose-600 shadow-xs'
+                    : 'bg-rose-50 text-rose-700 hover:bg-rose-100 border-rose-200'
                 }`}
               >
                 <Video className="w-3.5 h-3.5" />
@@ -599,153 +666,126 @@ export const AcademicExamView: React.FC<AcademicExamViewProps> = ({ course, onGa
               </button>
             )}
 
+            {/* 6. Vocabulary Hub */}
             <button
               onClick={() => {
-                setActiveTab('all');
+                setActiveTab('vocab-bank');
                 setIsEngineActive(false);
               }}
-              className={`px-3 py-1.5 rounded-lg font-medium transition-colors cursor-pointer ${
-                activeTab === 'all' && !isEngineActive
-                  ? 'bg-indigo-600 text-white'
-                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl font-bold transition-colors cursor-pointer border ${
+                activeTab === 'vocab-bank' && !isEngineActive
+                  ? 'bg-purple-600 text-white border-purple-600 shadow-xs'
+                  : 'bg-purple-50 text-purple-800 hover:bg-purple-100 border-purple-200'
               }`}
             >
-              Tất cả ({currentQuestions.length} câu)
+              <Layers className="w-3.5 h-3.5" />
+              <span>Kho Từ Vựng C1/C2 ({ieltsTopicVocabularies.length})</span>
             </button>
 
-            {listeningCount > 0 && (
-              <button
-                onClick={() => {
-                  setActiveTab('listening');
-                  setIsEngineActive(false);
-                }}
-                className={`flex items-center gap-1 px-3 py-1.5 rounded-lg font-medium transition-colors cursor-pointer ${
-                  activeTab === 'listening' && !isEngineActive
-                    ? 'bg-indigo-600 text-white'
-                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                }`}
-              >
-                <Headphones className="w-3.5 h-3.5" />
-                <span>Listening ({listeningCount})</span>
-              </button>
-            )}
-
-            {readingCount > 0 && (
-              <button
-                onClick={() => {
-                  setActiveTab('reading');
-                  setIsEngineActive(false);
-                }}
-                className={`flex items-center gap-1 px-3 py-1.5 rounded-lg font-medium transition-colors cursor-pointer ${
-                  activeTab === 'reading' && !isEngineActive
-                    ? 'bg-indigo-600 text-white'
-                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                }`}
-              >
-                <BookOpen className="w-3.5 h-3.5" />
-                <span>Reading ({readingCount})</span>
-              </button>
-            )}
-
-            {writingCount > 0 && (
-              <button
-                onClick={() => {
-                  setActiveTab('writing');
-                  setIsEngineActive(false);
-                }}
-                className={`flex items-center gap-1 px-3 py-1.5 rounded-lg font-medium transition-colors cursor-pointer ${
-                  activeTab === 'writing' && !isEngineActive
-                    ? 'bg-indigo-600 text-white'
-                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                }`}
-              >
-                <PenTool className="w-3.5 h-3.5" />
-                <span>Writing Quiz ({writingCount})</span>
-              </button>
-            )}
-
-            {speakingCount > 0 && (
-              <button
-                onClick={() => {
-                  setActiveTab('speaking');
-                  setIsEngineActive(false);
-                }}
-                className={`flex items-center gap-1 px-3 py-1.5 rounded-lg font-medium transition-colors cursor-pointer ${
-                  activeTab === 'speaking' && !isEngineActive
-                    ? 'bg-indigo-600 text-white'
-                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                }`}
-              >
-                <Mic className="w-3.5 h-3.5" />
-                <span>Speaking ({speakingCount})</span>
-              </button>
-            )}
-
-            {/* Writing Models Tab */}
-            {writingPrompts.length > 0 && (
-              <button
-                onClick={() => {
-                  setActiveTab('writing-models');
-                  setIsEngineActive(false);
-                }}
-                className={`flex items-center gap-1 px-3 py-1.5 rounded-lg font-medium transition-colors cursor-pointer ${
-                  activeTab === 'writing-models' && !isEngineActive
-                    ? 'bg-indigo-600 text-white'
-                    : 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200'
-                }`}
-              >
-                <FileText className="w-3.5 h-3.5" />
-                <span>Bài Mẫu Writing Band 9.0 ({writingPrompts.length})</span>
-              </button>
-            )}
-
-            {/* Speaking Simulator Tab */}
-            {speakingCards.length > 0 && (
-              <button
-                onClick={() => {
-                  setActiveTab('speaking-simulator');
-                  setIsEngineActive(false);
-                }}
-                className={`flex items-center gap-1 px-3 py-1.5 rounded-lg font-medium transition-colors cursor-pointer ${
-                  activeTab === 'speaking-simulator' && !isEngineActive
-                    ? 'bg-emerald-600 text-white'
-                    : 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200'
-                }`}
-              >
-                <Mic className="w-3.5 h-3.5" />
-                <span>Mô Phỏng Phòng Thi Nói Part 2</span>
-              </button>
-            )}
+            {/* 7. Band Calculator */}
+            <button
+              onClick={() => {
+                setActiveTab('band-calculator');
+                setIsEngineActive(false);
+              }}
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl font-bold transition-colors cursor-pointer border ${
+                activeTab === 'band-calculator' && !isEngineActive
+                  ? 'bg-blue-600 text-white border-blue-600 shadow-xs'
+                  : 'bg-blue-50 text-blue-800 hover:bg-blue-100 border-blue-200'
+              }`}
+            >
+              <Calculator className="w-3.5 h-3.5" />
+              <span>Bảng Tính Điểm (Band Calculator)</span>
+            </button>
           </div>
 
-          {/* Computer-Delivered Tools (when not in mock engine) */}
-          {!isEngineActive && (
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setIsHighlighterActive(!isHighlighterActive)}
-                className={`flex items-center gap-1 px-2.5 py-1 text-xs rounded-lg transition-colors cursor-pointer border ${
-                  isHighlighterActive 
-                    ? 'bg-amber-100 border-amber-300 text-amber-900 font-bold'
-                    : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
-                }`}
-                title="Bật/Tắt chế độ tô màu từ khóa quan trọng"
-              >
-                <Highlighter className="w-3.5 h-3.5 text-amber-600" />
-                <span className="hidden sm:inline">Highlight Từ Khóa</span>
-              </button>
+          {/* Sub-Filters for Practice Questions Browser */}
+          {!isEngineActive && (activeTab === 'all' || activeTab === 'listening' || activeTab === 'reading' || activeTab === 'writing' || activeTab === 'speaking') && (
+            <div className="flex items-center justify-between flex-wrap gap-2 pt-2 border-t border-slate-100">
+              <div className="flex items-center gap-1.5 flex-wrap text-xs">
+                <span className="text-[11px] font-bold text-slate-500 uppercase mr-1">Lọc kỹ năng:</span>
+                <button
+                  onClick={() => setActiveTab('all')}
+                  className={`px-2.5 py-1 rounded-lg font-medium transition-colors cursor-pointer ${
+                    activeTab === 'all' ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                  }`}
+                >
+                  Tất cả ({currentQuestions.length})
+                </button>
+                {listeningCount > 0 && (
+                  <button
+                    onClick={() => setActiveTab('listening')}
+                    className={`flex items-center gap-1 px-2.5 py-1 rounded-lg font-medium transition-colors cursor-pointer ${
+                      activeTab === 'listening' ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                    }`}
+                  >
+                    <Headphones className="w-3 h-3" />
+                    <span>Listening ({listeningCount})</span>
+                  </button>
+                )}
+                {readingCount > 0 && (
+                  <button
+                    onClick={() => setActiveTab('reading')}
+                    className={`flex items-center gap-1 px-2.5 py-1 rounded-lg font-medium transition-colors cursor-pointer ${
+                      activeTab === 'reading' ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                    }`}
+                  >
+                    <BookOpen className="w-3 h-3" />
+                    <span>Reading ({readingCount})</span>
+                  </button>
+                )}
+                {writingCount > 0 && (
+                  <button
+                    onClick={() => setActiveTab('writing')}
+                    className={`flex items-center gap-1 px-2.5 py-1 rounded-lg font-medium transition-colors cursor-pointer ${
+                      activeTab === 'writing' ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                    }`}
+                  >
+                    <PenTool className="w-3 h-3" />
+                    <span>Writing Quiz ({writingCount})</span>
+                  </button>
+                )}
+                {speakingCount > 0 && (
+                  <button
+                    onClick={() => setActiveTab('speaking')}
+                    className={`flex items-center gap-1 px-2.5 py-1 rounded-lg font-medium transition-colors cursor-pointer ${
+                      activeTab === 'speaking' ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                    }`}
+                  >
+                    <Mic className="w-3 h-3" />
+                    <span>Speaking Quiz ({speakingCount})</span>
+                  </button>
+                )}
+              </div>
 
-              <button
-                onClick={() => setIsSplitView(!isSplitView)}
-                className={`flex items-center gap-1 px-2.5 py-1 text-xs rounded-lg transition-colors cursor-pointer border ${
-                  isSplitView 
-                    ? 'bg-indigo-100 border-indigo-300 text-indigo-900 font-bold'
-                    : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
-                }`}
-                title="Chia đôi màn hình chuẩn thi máy IELTS on Computer"
-              >
-                <Monitor className="w-3.5 h-3.5 text-indigo-600" />
-                <span className="hidden sm:inline">Giao Diện Thi Máy (Split)</span>
-              </button>
+              {/* Computer-Delivered Tools */}
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setIsHighlighterActive(!isHighlighterActive)}
+                  className={`flex items-center gap-1 px-2.5 py-1 text-xs rounded-lg transition-colors cursor-pointer border ${
+                    isHighlighterActive 
+                      ? 'bg-amber-100 border-amber-300 text-amber-900 font-bold'
+                      : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                  }`}
+                  title="Bật/Tắt chế độ tô màu từ khóa quan trọng"
+                >
+                  <Highlighter className="w-3.5 h-3.5 text-amber-600" />
+                  <span className="hidden sm:inline">Highlight Từ Khóa</span>
+                </button>
+
+                <button
+                  onClick={() => setIsSplitView(!isSplitView)}
+                  className={`flex items-center gap-1 px-2.5 py-1 text-xs rounded-lg transition-colors cursor-pointer border ${
+                    isSplitView 
+                      ? 'bg-indigo-100 border-indigo-300 text-indigo-900 font-bold'
+                      : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                  }`}
+                  title="Chia đôi màn hình chuẩn thi máy IELTS on Computer"
+                >
+                  <Monitor className="w-3.5 h-3.5 text-indigo-600" />
+                  <span className="hidden sm:inline">Giao Diện Thi Máy (Split)</span>
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -1101,6 +1141,19 @@ export const AcademicExamView: React.FC<AcademicExamViewProps> = ({ course, onGa
 
                   <div className="flex items-center gap-3">
                     <button
+                      onClick={() => setIsScratchpadOpen(!isScratchpadOpen)}
+                      className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs transition-colors cursor-pointer border ${
+                        isScratchpadOpen
+                          ? 'bg-amber-100 border-amber-300 text-amber-900 font-bold'
+                          : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                      }`}
+                      title="Mở sổ nháp thi điện tử của thí sinh"
+                    >
+                      <FileText className="w-3.5 h-3.5 text-amber-600" />
+                      <span>{isScratchpadOpen ? 'Đóng Sổ Nháp' : 'Sổ Nháp Thí Sinh'}</span>
+                    </button>
+
+                    <button
                       onClick={() => setIsHighlighterActive(!isHighlighterActive)}
                       className={`flex items-center gap-1 px-2 py-0.5 rounded cursor-pointer ${
                         isHighlighterActive ? 'bg-amber-100 text-amber-900 font-bold' : 'hover:bg-slate-100'
@@ -1111,6 +1164,31 @@ export const AcademicExamView: React.FC<AcademicExamViewProps> = ({ course, onGa
                     </button>
                   </div>
                 </div>
+
+                {/* Candidate Scratchpad Drawer */}
+                {isScratchpadOpen && (
+                  <div className="mt-3 p-3.5 bg-amber-50/70 border border-amber-200 rounded-xl space-y-2">
+                    <div className="flex items-center justify-between text-xs font-bold text-amber-900">
+                      <span className="flex items-center gap-1.5">
+                        <FileText className="w-3.5 h-3.5 text-amber-700" />
+                        <span>Sổ Nháp Điện Tử Thí Sinh (IELTS Candidate Scratchpad)</span>
+                      </span>
+                      <button
+                        onClick={() => setMockCandidateScratchpad('')}
+                        className="text-[11px] text-amber-700 hover:text-rose-600 underline cursor-pointer"
+                      >
+                        Xóa nháp
+                      </button>
+                    </div>
+                    <textarea
+                      value={mockCandidateScratchpad}
+                      onChange={e => setMockCandidateScratchpad(e.target.value)}
+                      placeholder="Ghi nhanh từ khóa nghe được, từ đồng nghĩa hoặc dàn ý trả lời trong lúc làm bài..."
+                      rows={3}
+                      className="w-full p-2.5 text-xs bg-white border border-amber-300 rounded-lg focus:ring-1 focus:ring-amber-500 outline-hidden font-mono text-slate-800 placeholder:text-slate-400"
+                    />
+                  </div>
+                )}
               </div>
 
               {/* Pause Overlay Protection */}
@@ -1821,373 +1899,181 @@ export const AcademicExamView: React.FC<AcademicExamViewProps> = ({ course, onGa
                   </div>
                 </div>
               </div>
-            </div>
-          )}
 
-          {/* VIEW: WRITING BAND 9.0 MODELS */}
-          {activeTab === 'writing-models' && writingPrompts.length > 0 && (
-            <div className="space-y-6">
-              <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
-                  <div>
-                    <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                      <FileText className="w-4 h-4 text-indigo-600" />
-                      <span>
-                        {examModuleTrack === 'general-training'
-                          ? 'Kho Bài Mẫu IELTS General Writing Band 9.0: Đủ 3 Dạng Thư & Bài Luận Xã Hội'
-                          : 'Kho Bài Mẫu Writing Task 1 & Task 2 Đạt Điểm Tuyệt Đối Band 9.0'}
+              {/* Interactive Comprehension Mini-Quiz & Student Notes */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+                {/* Left: Interactive Mini-Quiz */}
+                {currentVideo.miniQuiz && currentVideo.miniQuiz.length > 0 && (
+                  <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs space-y-4">
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                      <div className="flex items-center gap-2">
+                        <BookCheck className="w-4 h-4 text-rose-600" />
+                        <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wide">
+                          Bài Tập Trắc Nghiệm Củng Cố Sau Video ({currentVideo.miniQuiz.length} câu)
+                        </h3>
+                      </div>
+                      <span className="text-[10px] font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-full border border-rose-200">
+                        +15 XP / câu đúng
                       </span>
-                    </h2>
-                    <p className="text-xs text-slate-500 mt-0.5">
-                      Phân tích cấu trúc PEEL, chiến lược làm bài, từ vựng C1/C2 đắt giá và nhận xét chi tiết của giám khảo chấm thi
-                    </p>
-                  </div>
-
-                  <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl shrink-0 flex-wrap">
-                    {writingPrompts.map((wp, idx) => (
-                      <button
-                        key={wp.id}
-                        onClick={() => setSelectedWritingTaskIndex(idx)}
-                        className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1 ${
-                          selectedWritingTaskIndex === idx
-                            ? 'bg-white text-indigo-600 shadow-xs'
-                            : 'text-slate-600 hover:text-slate-900'
-                        }`}
-                      >
-                        <span>{wp.taskType}</span>
-                        {wp.letterTone && (
-                          <span className={`text-[10px] px-1.5 py-0.2 rounded font-medium ${
-                            wp.letterTone === 'Formal' ? 'bg-indigo-100 text-indigo-800' :
-                            wp.letterTone === 'Semi-formal' ? 'bg-amber-100 text-amber-800' :
-                            'bg-emerald-100 text-emerald-800'
-                          }`}>
-                            {wp.letterTone}
-                          </span>
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* GT Letter Tone Filter & Guide */}
-                {(examModuleTrack === 'general-training' || rawWritingPrompts.some(p => p.letterTone)) && (
-                  <div className="mt-3 space-y-3">
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      <span className="text-[11px] font-bold text-slate-700 mr-1">Bộ lọc phong cách (Tone Filter):</span>
-                      {[
-                        { id: 'all', label: `Tất cả bài mẫu (${rawWritingPrompts.length})` },
-                        { id: 'Formal', label: 'Formal (Trang trọng)' },
-                        { id: 'Semi-formal', label: 'Semi-formal (Bán trang trọng)' },
-                        { id: 'Informal', label: 'Informal (Thân mật)' },
-                        { id: 'Task 2', label: 'Task 2 (Nghị luận xã hội)' }
-                      ].map(item => (
-                        <button
-                          key={item.id}
-                          onClick={() => {
-                            setWritingToneFilter(item.id as any);
-                            setSelectedWritingTaskIndex(0);
-                          }}
-                          className={`px-2.5 py-1 text-xs rounded-lg font-medium transition-colors cursor-pointer ${
-                            writingToneFilter === item.id
-                              ? 'bg-indigo-600 text-white font-bold'
-                              : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                          }`}
-                        >
-                          {item.label}
-                        </button>
-                      ))}
                     </div>
 
-                    <div className="p-3.5 bg-linear-to-r from-indigo-50/70 via-blue-50/50 to-emerald-50/70 rounded-xl border border-indigo-200/80 space-y-2">
-                      <div className="flex items-center gap-1.5 text-xs font-bold text-indigo-900">
-                        <Mail className="w-4 h-4 text-indigo-600" />
-                        <span>Quy Chuẩn 3 Phong Cách Hành Văn (Tone) Đạt Band 9.0 IELTS General Training Task 1:</span>
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-[11px] text-slate-700">
-                        <div className="p-2.5 bg-white/85 rounded-lg border border-indigo-100 space-y-1">
-                          <div className="font-bold text-indigo-700 flex items-center justify-between">
-                            <span>1. Formal (Trang Trọng)</span>
-                            <span className="text-[10px] bg-indigo-100 text-indigo-800 px-1.5 py-0.2 rounded font-mono">Official</span>
-                          </div>
-                          <p>• <strong>Đối tượng:</strong> Người chưa quen biết, cơ quan chức năng, quản lý hãng bay, giám đốc công ty.</p>
-                          <p>• <strong>Chào hỏi:</strong> <code className="font-mono text-indigo-900 bg-indigo-50 px-1 rounded">Dear Sir or Madam,</code></p>
-                          <p>• <strong>Kết thư:</strong> <code className="font-mono text-indigo-900 bg-indigo-50 px-1 rounded">Yours faithfully,</code> + Họ tên đầy đủ.</p>
-                          <p className="text-amber-800">⚠️ Tuyệt đối không viết tắt (dùng <em>do not, cannot, would like</em>).</p>
-                        </div>
+                    <div className="space-y-4">
+                      {currentVideo.miniQuiz.map((quiz, qIdx) => {
+                        const selected = videoQuizAnswers[qIdx];
+                        const isSubmitted = videoQuizSubmitted[qIdx];
+                        const isCorrect = selected === quiz.correctAnswer;
 
-                        <div className="p-2.5 bg-white/85 rounded-lg border border-amber-100 space-y-1">
-                          <div className="font-bold text-amber-800 flex items-center justify-between">
-                            <span>2. Semi-formal (Bán Trang Trọng)</span>
-                            <span className="text-[10px] bg-amber-100 text-amber-900 px-1.5 py-0.2 rounded font-mono">Polite</span>
-                          </div>
-                          <p>• <strong>Đối tượng:</strong> Chủ nhà trọ, giáo viên, đồng nghiệp, đối tác quen biết trong công việc.</p>
-                          <p>• <strong>Chào hỏi:</strong> <code className="font-mono text-amber-900 bg-amber-50 px-1 rounded">Dear Mr./Ms. [Họ],</code></p>
-                          <p>• <strong>Kết thư:</strong> <code className="font-mono text-amber-900 bg-amber-50 px-1 rounded">Yours sincerely,</code> + Họ tên đầy đủ.</p>
-                          <p className="text-slate-600">Giữ khoảng cách lịch sự, nhã nhặn, tôn trọng nhưng tự nhiên.</p>
-                        </div>
+                        return (
+                          <div key={qIdx} className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3 text-xs">
+                            <div className="font-bold text-slate-900 leading-snug">
+                              Câu {qIdx + 1}: {quiz.question}
+                            </div>
 
-                        <div className="p-2.5 bg-white/85 rounded-lg border border-emerald-100 space-y-1">
-                          <div className="font-bold text-emerald-800 flex items-center justify-between">
-                            <span>3. Informal (Thân Mật)</span>
-                            <span className="text-[10px] bg-emerald-100 text-emerald-900 px-1.5 py-0.2 rounded font-mono">Personal</span>
+                            <div className="space-y-1.5">
+                              {quiz.options.map((opt, oIdx) => {
+                                const isOptSelected = selected === opt;
+                                let optStyle = 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700';
+                                if (isSubmitted) {
+                                  if (opt === quiz.correctAnswer) {
+                                    optStyle = 'border-emerald-500 bg-emerald-50 text-emerald-900 font-bold';
+                                  } else if (isOptSelected && !isCorrect) {
+                                    optStyle = 'border-rose-400 bg-rose-50 text-rose-900 line-through';
+                                  }
+                                } else if (isOptSelected) {
+                                  optStyle = 'border-rose-600 bg-rose-50 text-rose-900 font-semibold ring-1 ring-rose-500';
+                                }
+
+                                return (
+                                  <button
+                                    key={oIdx}
+                                    disabled={isSubmitted}
+                                    onClick={() => setVideoQuizAnswers(prev => ({ ...prev, [qIdx]: opt }))}
+                                    className={`w-full text-left p-2.5 rounded-lg border text-xs transition-colors cursor-pointer flex items-center justify-between ${optStyle}`}
+                                  >
+                                    <span>{opt}</span>
+                                    {isSubmitted && opt === quiz.correctAnswer && (
+                                      <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                                    )}
+                                  </button>
+                                );
+                              })}
+                            </div>
+
+                            {!isSubmitted && (
+                              <div className="flex justify-end pt-1">
+                                <button
+                                  disabled={!selected}
+                                  onClick={() => {
+                                    setVideoQuizSubmitted(prev => ({ ...prev, [qIdx]: true }));
+                                    if (selected === quiz.correctAnswer) {
+                                      onGainXp(15);
+                                    }
+                                  }}
+                                  className="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 disabled:opacity-40 text-white rounded-lg text-xs font-bold transition-colors cursor-pointer"
+                                >
+                                  Kiểm Tra Đáp Án
+                                </button>
+                              </div>
+                            )}
+
+                            {isSubmitted && (
+                              <div className={`p-2.5 rounded-lg border text-xs leading-relaxed ${
+                                isCorrect ? 'bg-emerald-50 border-emerald-200 text-emerald-950' : 'bg-amber-50 border-amber-200 text-amber-950'
+                              }`}>
+                                <div className="font-bold flex items-center gap-1.5 mb-0.5">
+                                  {isCorrect ? (
+                                    <>
+                                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                                      <span>Chính xác! (+15 XP)</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <AlertCircle className="w-3.5 h-3.5 text-amber-600" />
+                                      <span>Chưa chính xác. Đáp án đúng: {quiz.correctAnswer}</span>
+                                    </>
+                                  )}
+                                </div>
+                                <p className="text-[11px]">{quiz.explanation}</p>
+                              </div>
+                            )}
                           </div>
-                          <p>• <strong>Đối tượng:</strong> Bạn bè thân thiết, người thân trong gia đình, đồng hương.</p>
-                          <p>• <strong>Chào hỏi:</strong> <code className="font-mono text-emerald-900 bg-emerald-50 px-1 rounded">Dear [Tên riêng],</code></p>
-                          <p>• <strong>Kết thư:</strong> <code className="font-mono text-emerald-900 bg-emerald-50 px-1 rounded">Warm regards,</code> / <code className="font-mono text-emerald-900 bg-emerald-50 px-1 rounded">Best wishes,</code></p>
-                          <p className="text-slate-600">Được dùng từ ngữ sinh động, viết tắt (<em>I'm, we'd</em>) và chia sẻ cảm xúc cá nhân.</p>
-                        </div>
-                      </div>
+                        );
+                      })}
                     </div>
                   </div>
                 )}
 
-                <div className="mt-4 p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
-                  <div className="flex items-center justify-between flex-wrap gap-2">
+                {/* Right: Student Notes Pad */}
+                <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs space-y-3">
+                  <div className="flex items-center justify-between pb-2 border-b border-slate-100">
                     <div className="flex items-center gap-2">
-                      <span className="text-[11px] font-bold text-indigo-700 uppercase tracking-wide">
-                        Đề bài chính thức ({activeWriting.taskType})
-                      </span>
-                      {activeWriting.letterTone && (
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
-                          activeWriting.letterTone === 'Formal' ? 'bg-indigo-50 text-indigo-700 border-indigo-200' :
-                          activeWriting.letterTone === 'Semi-formal' ? 'bg-amber-50 text-amber-800 border-amber-200' :
-                          'bg-emerald-50 text-emerald-800 border-emerald-200'
-                        }`}>
-                          Phong cách: {activeWriting.letterTone}
-                        </span>
-                      )}
-                    </div>
-                    <span className="text-xs font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
-                      {activeWriting.bandScore}
-                    </span>
-                  </div>
-                  <p className="text-xs sm:text-sm font-bold text-slate-900 leading-snug">
-                    {activeWriting.prompt}
-                  </p>
-                  {activeWriting.chartDescription && (
-                    <div className="text-xs text-slate-600 italic bg-white p-2.5 rounded-lg border border-slate-200/60 mt-2 font-mono">
-                      {activeWriting.chartDescription}
-                    </div>
-                  )}
-                </div>
-
-                <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  <div className="lg:col-span-2 space-y-4">
-                    <div className="flex items-center justify-between">
+                      <FileText className="w-4 h-4 text-indigo-600" />
                       <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wide">
-                        Bài viết mẫu Band 9.0 (Full Model Text)
+                        Sổ Ghi Chú Bài Học Của Học Viên
                       </h3>
-                      <button
-                        onClick={() => handlePlayAudio(activeWriting.modelAnswer)}
-                        className="flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-700 font-semibold cursor-pointer"
-                      >
-                        <Volume2 className="w-3.5 h-3.5" />
-                        <span>Nghe bài đọc</span>
-                      </button>
                     </div>
-
-                    <div className="p-5 bg-slate-50/80 rounded-xl border border-slate-200 text-xs sm:text-sm leading-relaxed text-slate-800 font-sans whitespace-pre-line space-y-3">
-                      {activeWriting.modelAnswer}
-                    </div>
-
-                    <div className="p-4 bg-emerald-50/60 rounded-xl border border-emerald-200 space-y-1.5">
-                      <div className="text-xs font-bold text-emerald-900 flex items-center gap-1.5">
-                        <Award className="w-4 h-4 text-emerald-700" />
-                        <span>Nhận xét chuẩn giám khảo Cambridge:</span>
-                      </div>
-                      <p className="text-xs text-emerald-950 leading-relaxed">
-                        {activeWriting.examinerComment}
-                      </p>
-                    </div>
+                    <button
+                      onClick={() => {
+                        const currentNotes = studentVideoNotes[currentVideo.id] || '';
+                        if (currentNotes) {
+                          navigator.clipboard.writeText(currentNotes);
+                          setIsVideoNotesCopied(true);
+                          setTimeout(() => setIsVideoNotesCopied(false), 2000);
+                        }
+                      }}
+                      className="flex items-center gap-1 text-[11px] font-bold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-lg cursor-pointer"
+                    >
+                      {isVideoNotesCopied ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                      <span>{isVideoNotesCopied ? 'Đã chép' : 'Sao chép ghi chú'}</span>
+                    </button>
                   </div>
 
-                  <div className="space-y-4">
-                    <div className="p-4 bg-white rounded-xl border border-slate-200 space-y-3 shadow-2xs">
-                      <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wide">
-                        Dàn ý & Cấu trúc đoạn (PEEL Outline)
-                      </h4>
-                      <div className="space-y-2.5">
-                        {activeWriting.outline.map((item, idx) => (
-                          <div key={idx} className="p-2.5 bg-slate-50 rounded-lg border border-slate-100 text-xs">
-                            <div className="font-bold text-indigo-600">{item.point}</div>
-                            <div className="text-slate-600 text-[11px] mt-1 leading-relaxed">{item.explanation}</div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="p-4 bg-white rounded-xl border border-slate-200 space-y-3 shadow-2xs">
-                      <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wide">
-                        Từ vựng ăn điểm C1/C2 (Lexical Bank)
-                      </h4>
-                      <div className="space-y-2">
-                        {activeWriting.keyVocabulary.map((v, idx) => (
-                          <div key={idx} className="p-2 bg-indigo-50/40 rounded-lg border border-indigo-100 text-xs">
-                            <div className="flex items-center justify-between">
-                              <span className="font-bold text-indigo-900">{v.word}</span>
-                              {v.phonetic && <span className="text-[11px] font-mono text-slate-500">{v.phonetic}</span>}
-                            </div>
-                            <div className="text-slate-600 text-[11px] mt-0.5">{v.meaning}</div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
+                  <textarea
+                    value={studentVideoNotes[currentVideo.id] || ''}
+                    onChange={e => setStudentVideoNotes(prev => ({ ...prev, [currentVideo.id]: e.target.value }))}
+                    placeholder="Ghi lại các mẹo bẫy, công thức cấu trúc hoặc từ vựng đắt giá trong bài giảng..."
+                    rows={8}
+                    className="w-full p-3.5 text-xs text-slate-900 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-hidden leading-relaxed placeholder:text-slate-400 resize-y"
+                  />
+                  <p className="text-[10px] text-slate-400">
+                    Ghi chú được lưu trữ theo từng video bài giảng để bạn tiện ôn tập trước ngày thi thật.
+                  </p>
                 </div>
               </div>
             </div>
           )}
 
-          {/* VIEW: SPEAKING CUE CARD SIMULATOR */}
-          {activeTab === 'speaking-simulator' && speakingCards.length > 0 && (
-            <div className="space-y-6">
-              <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
-                  <div>
-                    <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                      <Mic className="w-4 h-4 text-emerald-600" />
-                      <span>Phòng Thi Thử IELTS Speaking: Chuẩn 1 Phút Chuẩn Bị + 2 Phút Nói</span>
-                    </h2>
-                    <p className="text-xs text-slate-500 mt-0.5">
-                      Thực hành độc thoại theo Cue Card, rèn luyện cấu trúc A.R.E.A và kho thành ngữ Idiomatic Band 8.5+
-                    </p>
-                  </div>
+          {/* VIEW: INTERACTIVE WRITING LAB */}
+          {(activeTab === 'writing-lab' || activeTab === 'writing-models') && (
+            <IeltsWritingLab
+              prompts={writingPrompts}
+              examModuleTrack={examModuleTrack}
+              onGainXp={onGainXp}
+            />
+          )}
 
-                  <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl shrink-0">
-                    {speakingCards.map((sc, idx) => (
-                      <button
-                        key={sc.id}
-                        onClick={() => {
-                          setSelectedSpeakingIndex(idx);
-                          setIsPrepTimerRunning(false);
-                          setPrepTimerSeconds(60);
-                          setIsSpeakTimerRunning(false);
-                          setSpeakTimerSeconds(120);
-                        }}
-                        className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors cursor-pointer ${
-                          selectedSpeakingIndex === idx
-                            ? 'bg-white text-emerald-700 shadow-xs'
-                            : 'text-slate-600 hover:text-slate-900'
-                        }`}
-                      >
-                        Part {sc.part}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+          {/* VIEW: SPEAKING AUDIO LAB */}
+          {(activeTab === 'speaking-lab' || activeTab === 'speaking-simulator') && (
+            <IeltsSpeakingLab
+              cueCards={speakingCards}
+              voiceLangCode={course.voiceLangCode}
+              onGainXp={onGainXp}
+            />
+          )}
 
-                <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="p-4 bg-amber-50/70 rounded-xl border border-amber-200 flex items-center justify-between">
-                    <div>
-                      <div className="text-xs font-bold text-amber-900">1 Phút Chuẩn Bị Ghi Chú (Cue Card Prep)</div>
-                      <div className="text-[11px] text-amber-700 mt-0.5">Thời gian suy nghĩ ý tưởng và ghi từ khóa</div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className="font-mono text-xl font-extrabold text-amber-950 tabular-nums">
-                        {formatTimer(prepTimerSeconds)}
-                      </span>
-                      <button
-                        onClick={() => setIsPrepTimerRunning(!isPrepTimerRunning)}
-                        className="p-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg transition-colors cursor-pointer"
-                      >
-                        {isPrepTimerRunning ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-                      </button>
-                    </div>
-                  </div>
+          {/* VIEW: TOPIC VOCABULARY & COLLOCATION BANK */}
+          {activeTab === 'vocab-bank' && (
+            <IeltsVocabHub
+              voiceLangCode={course.voiceLangCode}
+              onGainXp={onGainXp}
+            />
+          )}
 
-                  <div className="p-4 bg-emerald-50/70 rounded-xl border border-emerald-200 flex items-center justify-between">
-                    <div>
-                      <div className="text-xs font-bold text-emerald-900">2 Phút Độc Thoại Nói Liên Tục</div>
-                      <div className="text-[11px] text-emerald-700 mt-0.5">Duy trì độ lưu loát và ngữ điệu tự nhiên</div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className="font-mono text-xl font-extrabold text-emerald-950 tabular-nums">
-                        {formatTimer(speakTimerSeconds)}
-                      </span>
-                      <button
-                        onClick={() => setIsSpeakTimerRunning(!isSpeakTimerRunning)}
-                        className="p-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors cursor-pointer"
-                      >
-                        {isSpeakTimerRunning ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-5 p-5 bg-slate-50 rounded-xl border-2 border-dashed border-slate-300 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-slate-700 uppercase tracking-wide">
-                      IELTS Speaking Candidate Task Card ({activeSpeaking.topic})
-                    </span>
-                    <span className="text-xs font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
-                      {activeSpeaking.bandScore}
-                    </span>
-                  </div>
-                  <div className="text-xs sm:text-sm text-slate-900 font-medium whitespace-pre-line leading-relaxed">
-                    {activeSpeaking.cueCardPrompt}
-                  </div>
-                  {activeSpeaking.bulletPoints && (
-                    <div className="pt-2 border-t border-slate-200 space-y-1">
-                      <div className="text-xs font-semibold text-slate-700">Gợi ý dàn bài trong 1 phút ghi chú:</div>
-                      <ul className="list-disc list-inside text-xs text-slate-600 space-y-0.5">
-                        {activeSpeaking.bulletPoints.map((bp, idx) => (
-                          <li key={idx}>{bp}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-
-                <div className="mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  <div className="lg:col-span-2 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wide">
-                        Bài Nói Mẫu Band 8.5+ Chuẩn Bản Xứ
-                      </h4>
-                      <button
-                        onClick={() => handlePlayAudio(activeSpeaking.modelAnswer)}
-                        className="flex items-center gap-1 text-xs text-emerald-700 hover:text-emerald-800 font-semibold cursor-pointer"
-                      >
-                        <Volume2 className="w-3.5 h-3.5" />
-                        <span>Nghe phát âm chuẩn</span>
-                      </button>
-                    </div>
-
-                    <div className="p-5 bg-emerald-50/30 rounded-xl border border-emerald-200 text-xs sm:text-sm leading-relaxed text-slate-800 font-sans whitespace-pre-line">
-                      {activeSpeaking.modelAnswer}
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    {activeSpeaking.areaBreakdown && (
-                      <div className="p-4 bg-white rounded-xl border border-slate-200 space-y-2.5 shadow-2xs">
-                        <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wide">
-                          Phân Tích Cấu Trúc A.R.E.A
-                        </h4>
-                        {activeSpeaking.areaBreakdown.map((item, idx) => (
-                          <div key={idx} className="p-2 bg-slate-50 rounded-lg border border-slate-100 text-xs">
-                            <span className="font-bold text-emerald-800">{item.step}: </span>
-                            <span className="text-slate-600">{item.content}</span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    <div className="p-4 bg-white rounded-xl border border-slate-200 space-y-2.5 shadow-2xs">
-                      <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wide">
-                        Cụm Từ Idiomatic Band 8.5+ Nên Vận Dụng
-                      </h4>
-                      {activeSpeaking.idiomaticExpressions.map((item, idx) => (
-                        <div key={idx} className="p-2 bg-emerald-50/50 rounded-lg border border-emerald-100 text-xs">
-                          <div className="font-bold text-emerald-950">{item.phrase}</div>
-                          <div className="text-slate-600 text-[11px] mt-0.5">{item.meaning}</div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+          {/* VIEW: IELTS BAND SCORE CALCULATOR */}
+          {activeTab === 'band-calculator' && (
+            <IeltsBandCalculator
+              initialTrack={examModuleTrack}
+            />
           )}
 
           {/* VIEW: PRACTICE QUESTIONS (ALL / LISTENING / READING / WRITING / SPEAKING) */}
