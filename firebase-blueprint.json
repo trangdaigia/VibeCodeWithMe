@@ -1,0 +1,200 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Stores user profile, role, settings, and language learning progress.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "The unique Firebase Auth UID of the user."
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "maxLength": 256,
+          "description": "The user email address."
+        },
+        "displayName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100,
+          "description": "The display name of the user."
+        },
+        "photoURL": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "URL of the user avatar."
+        },
+        "role": {
+          "type": "string",
+          "enum": ["student", "teacher", "admin"],
+          "maxLength": 20,
+          "description": "Role-based access control tier."
+        },
+        "selectedLanguageId": {
+          "type": "string",
+          "enum": ["english", "chinese", "japanese", "korean", "french", "german", "spanish"],
+          "maxLength": 32,
+          "description": "Currently selected course language ID."
+        },
+        "xp": {
+          "type": "number",
+          "description": "Total accumulated experience points."
+        },
+        "dailyXpGoal": {
+          "type": "number",
+          "description": "Daily XP target configured by the user."
+        },
+        "todayXp": {
+          "type": "number",
+          "description": "XP earned on the current date."
+        },
+        "todayDate": {
+          "type": "string",
+          "maxLength": 20,
+          "description": "ISO date string for daily XP tracking."
+        },
+        "streak": {
+          "type": "number",
+          "description": "Current consecutive learning days streak."
+        },
+        "lastActiveDate": {
+          "type": "string",
+          "maxLength": 20,
+          "description": "ISO date string of last XP activity."
+        },
+        "examsCompleted": {
+          "type": "number",
+          "description": "Total number of IELTS mock exams completed."
+        },
+        "bonusWordsMastered": {
+          "type": "number",
+          "description": "Additional mastered vocabulary count."
+        },
+        "targetBand": {
+          "type": "string",
+          "maxLength": 32,
+          "description": "Target IELTS band score goal."
+        },
+        "voiceSpeed": {
+          "type": "number",
+          "description": "Preferred audio narration speed."
+        },
+        "soundEnabled": {
+          "type": "boolean",
+          "description": "Whether sound effects and voice are enabled."
+        },
+        "completedLessonIds": {
+          "type": "array",
+          "description": "Bounded list of completed lesson IDs (max 100)."
+        },
+        "unlockedAchievementIds": {
+          "type": "array",
+          "description": "Bounded list of unlocked achievement badge IDs (max 50)."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the profile was created."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the profile was last updated."
+        }
+      },
+      "required": [
+        "uid",
+        "email",
+        "displayName",
+        "photoURL",
+        "role",
+        "selectedLanguageId",
+        "xp",
+        "dailyXpGoal",
+        "todayXp",
+        "todayDate",
+        "streak",
+        "lastActiveDate",
+        "examsCompleted",
+        "bonusWordsMastered",
+        "targetBand",
+        "voiceSpeed",
+        "soundEnabled",
+        "completedLessonIds",
+        "unlockedAchievementIds",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "ExamRecord": {
+      "title": "ExamRecord",
+      "description": "Stores an individual completed mock exam attempt under a user.",
+      "type": "object",
+      "properties": {
+        "examId": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "Unique identifier of the exam attempt."
+        },
+        "userId": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "description": "UID of the user who completed the exam."
+        },
+        "examTitle": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200,
+          "description": "Title of the exam or test set."
+        },
+        "overallBand": {
+          "type": "number",
+          "description": "Calculated overall IELTS band score."
+        },
+        "listeningScore": {
+          "type": "number",
+          "description": "Raw or band score in Listening."
+        },
+        "readingScore": {
+          "type": "number",
+          "description": "Raw or band score in Reading."
+        },
+        "writingWords": {
+          "type": "number",
+          "description": "Total word count written in Writing tasks."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the exam was submitted."
+        }
+      },
+      "required": [
+        "examId",
+        "userId",
+        "examTitle",
+        "overallBand",
+        "listeningScore",
+        "readingScore",
+        "writingWords",
+        "createdAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profile, settings, RBAC role, and learning progress."
+    },
+    "/users/{userId}/examHistory/{examId}": {
+      "schema": "ExamRecord",
+      "description": "Subcollection of completed IELTS practice exams for a user."
+    }
+  }
+}

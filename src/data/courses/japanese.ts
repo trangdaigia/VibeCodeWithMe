@@ -3,7 +3,7 @@ import { LanguageCourse } from '../curriculum';
 export const japaneseCourse: LanguageCourse = {
   id: 'japanese',
   name: 'Japanese',
-  nativeName: '日本語 (Nihongo)',
+  nativeName: 'Nihongo (Tiếng Nhật Chuẩn)',
   vietnameseName: 'Tiếng Nhật',
   flagEmoji: '🇯🇵',
   flagColor: '#e11d48',
@@ -11,7 +11,7 @@ export const japaneseCourse: LanguageCourse = {
   scriptType: 'Kanji, Hiragana & Katakana kèm Romaji',
   examInfo: [
     {
-      examName: 'JLPT (Japanese-Language Proficiency Test - 日本語能力試験)',
+      examName: 'JLPT (Japanese-Language Proficiency Test N3 - N1)',
       targetLevel: 'N3 - N2 - N1',
       overview: 'Chứng chỉ năng lực tiếng Nhật danh giá nhất thế giới do Quỹ Giao lưu Quốc tế Nhật Bản (Japan Foundation) cấp, là tiêu chuẩn bắt buộc cho visa kỹ sư, kỹ năng đặc định và du học đại học.',
       formatSections: [

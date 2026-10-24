@@ -84,3 +84,15 @@ export function isCardDue(nextReviewDateStr: string, currentDate: Date = new Dat
   const reviewTime = new Date(nextReviewDateStr).getTime();
   return currentDate.getTime() >= reviewTime;
 }
+
+/**
+ * Computes count of cards that are due for today's review
+ */
+export function countDueCards(
+  cards: { nextReviewDate?: string }[],
+  currentDate: Date = new Date()
+): number {
+  if (!cards || !Array.isArray(cards)) return 0;
+  return cards.filter(c => isCardDue(c.nextReviewDate || '', currentDate)).length;
+}
+

@@ -3,7 +3,7 @@ import { LanguageCourse } from '../curriculum';
 export const koreanCourse: LanguageCourse = {
   id: 'korean',
   name: 'Korean',
-  nativeName: '한국어 (Hangugeo)',
+  nativeName: 'Hangugeo (Tiếng Hàn Chuẩn)',
   vietnameseName: 'Tiếng Hàn',
   flagEmoji: '🇰🇷',
   flagColor: '#0284c7',
@@ -11,7 +11,7 @@ export const koreanCourse: LanguageCourse = {
   scriptType: 'Bảng chữ cái Hangeul & Phiên âm Latinh',
   examInfo: [
     {
-      examName: 'TOPIK (Test of Proficiency in Korean - 한국어능력시험)',
+      examName: 'TOPIK (Test of Proficiency in Korean Cap 1-6)',
       targetLevel: 'TOPIK II (Cấp 3 - Cấp 5)',
       overview: 'Kỳ thi đánh giá năng lực tiếng Hàn tiêu chuẩn do Viện Giáo dục Quốc tế Quốc gia Hàn Quốc (NIIED) tổ chức, là tấm vé bắt buộc để du học học bổng chính phủ GKS và vào làm tại các tập đoàn lớn (Chaebol như Samsung, LG, Hyundai).',
       formatSections: [

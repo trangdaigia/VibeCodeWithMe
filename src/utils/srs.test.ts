@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { calculateSrsNextReview, isCardDue } from './srs.ts';
+import { calculateSrsNextReview, isCardDue, countDueCards } from './srs.ts';
 
 test('SM-2 SRS algorithm: first successful recall gives 1-day interval', () => {
   const base = new Date('2026-05-01T12:00:00Z');
@@ -53,3 +53,17 @@ test('isCardDue accurately identifies past or current review timestamps', () => 
   assert.equal(isCardDue('2026-05-09T10:00:00Z', now), true);
   assert.equal(isCardDue('2026-05-11T10:00:00Z', now), false);
 });
+
+test('countDueCards accurately counts cards scheduled for today or earlier', () => {
+  const now = new Date('2026-05-10T12:00:00Z');
+  const cards = [
+    { nextReviewDate: '2026-05-09T08:00:00Z' }, // due (past)
+    { nextReviewDate: '2026-05-10T10:00:00Z' }, // due (earlier today)
+    { nextReviewDate: '2026-05-12T08:00:00Z' }, // not due (future)
+    { nextReviewDate: '' }, // due (new/unassigned)
+  ];
+  assert.equal(countDueCards(cards, now), 3);
+  assert.equal(countDueCards([], now), 0);
+  assert.equal(countDueCards(undefined as unknown as { nextReviewDate?: string }[], now), 0);
+});
+

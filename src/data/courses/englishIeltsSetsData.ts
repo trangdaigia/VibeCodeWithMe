@@ -1,6 +1,12 @@
 import { IeltsTestSet, ExamQuestion, WritingModelPrompt, SpeakingCueCard } from '../curriculum';
 import { ieltsQuestions, ieltsWritingPrompts, ieltsSpeakingCueCards } from './englishIeltsData';
 import { ieltsGtTestSet } from './englishIeltsGtData';
+import {
+  officialListening40Questions,
+  officialReading40Questions,
+  officialWritingTasks,
+  officialSpeakingParts
+} from './ieltsOfficialFullExamData';
 
 // Cambridge 18 Questions Set
 const cam18Questions: ExamQuestion[] = [
@@ -378,8 +384,146 @@ const bcForecastQuestions: ExamQuestion[] = [
   }
 ];
 
+// Cambridge 17 Questions Set (Archaeology, Urban Forestry & Solar Microgrids)
+const cam17Questions: ExamQuestion[] = [
+  {
+    id: 'cam17-l1',
+    skill: 'listening',
+    sectionOrPart: 'Listening Section 1 (Art Gallery Volunteer Application & Schedule Trap)',
+    question: 'IELTS Listening Section 1: Which day of the week is the volunteer induction workshop held?',
+    audioScript: 'Coordinator: "We used to conduct orientation every Wednesday evening. However, starting this term, due to room availability, all new volunteer inductions are held exclusively on Thursday mornings at 09:30."',
+    options: ['Thursday', 'Wednesday', 'Tuesday', 'Saturday'],
+    correctAnswer: 'Thursday',
+    bandTarget: 'Band 6.5 - 7.0',
+    trapAnalysis: 'Bẫy lịch trình cũ (Outdated Schedule Trap): Lịch cũ là Wednesday, nhưng từ kỳ này chuyển sang Thursday mornings.',
+    explanationInVietnamese: 'Lịch định hướng tình nguyện viên hiện tại diễn ra vào sáng thứ Năm ("exclusively on Thursday mornings").'
+  },
+  {
+    id: 'cam17-l2',
+    skill: 'listening',
+    sectionOrPart: 'Listening Section 2 (Urban Community Forestry & Micro-Gardens)',
+    question: 'IELTS Listening Section 2: What is the main ecological benefit of soil mycorrhizal fungi introduced in the project?',
+    audioScript: 'Biologist: "While synthetic fertilizers provide rapid nitrogen spikes, mycorrhizal fungi establish a symbiotic underground fungal network. This drastically enhances root water retention and phosphorus absorption during summer droughts."',
+    options: [
+      'It significantly enhances soil moisture retention and phosphorus absorption during dry periods.',
+      'It kills invasive weed species without chemical herbicides.',
+      'It accelerates plant leaf discoloration to attract honeybees.',
+      'It converts heavy clay soil directly into pure peat moss.'
+    ],
+    correctAnswer: 'It significantly enhances soil moisture retention and phosphorus absorption during dry periods.',
+    bandTarget: 'Band 7.5 - 8.0',
+    trapAnalysis: 'Paraphrase sinh học: "enhances root water retention and phosphorus absorption during summer droughts" tương đương với "enhances soil moisture retention and phosphorus absorption during dry periods".',
+    explanationInVietnamese: 'Nấm rễ (mycorrhizal fungi) cải thiện khả năng giữ nước và hấp thụ phốt pho của rễ cây trong mùa khô hạn.'
+  },
+  {
+    id: 'cam17-r1',
+    skill: 'reading',
+    sectionOrPart: 'Reading Passage 1 (The History and Conservation of Ancient Timber Roofs)',
+    question: "Do the following statement agree with the information in the passage? 'Medieval carpenters favored seasoned oak over green oak due to its immediate pliability during construction.'",
+    passage: 'Contrary to modern architectural practices, medieval shipwrights and roof carpenters overwhelmingly preferred "green" unseasoned oak. Freshly felled oak contained high moisture levels that made it supple and easy to shape with hand adzes, whereas seasoned timber was prone to splintering under manual axes.',
+    options: ['TRUE', 'FALSE', 'NOT GIVEN'],
+    correctAnswer: 'FALSE',
+    bandTarget: 'Band 7.5 - 8.0',
+    trapAnalysis: 'Bẫy mâu thuẫn trực tiếp (FALSE Trap): Bài đọc khẳng định thợ mộc thời Trung cổ chuộng gỗ sồi tươi chưa qua sấy ("green unseasoned oak") vì dễ uốn uốn nắn, hoàn toàn trái ngược với khẳng định họ thích sồi đã sấy (seasoned oak).',
+    explanationInVietnamese: 'Thông tin bài đọc ngược lại: Thợ mộc thời xưa thích sồi tươi (green oak) vì độ dẻo, chứ không chọn sồi sấy khô (seasoned oak).'
+  },
+  {
+    id: 'cam17-r2',
+    skill: 'reading',
+    sectionOrPart: 'Reading Passage 2 (Neurological Correlates of Musical Improvisation)',
+    question: 'According to fMRI brain scan studies mentioned in Paragraph C, what occurs in the dorsolateral prefrontal cortex during jazz improvisation?',
+    passage: 'Paragraph C: Functional MRI scans revealed a striking neurochemical signature during creative improvisation. The dorsolateral prefrontal cortex, the neural seat of conscious self-monitoring and inhibition, exhibited widespread deactivation. Concurrently, the medial prefrontal cortex showed elevated activity, enabling uninhibited flow of artistic expression.',
+    options: [
+      'It exhibits widespread neural deactivation, reducing conscious self-censorship.',
+      'It increases glucose consumption by 200% to boost memory recall.',
+      'It triggers involuntary motor spasms in the left fingers.',
+      'It completely shuts down auditory processing in the inner ear.'
+    ],
+    correctAnswer: 'It exhibits widespread neural deactivation, reducing conscious self-censorship.',
+    bandTarget: 'Band 8.0 - 8.5',
+    trapAnalysis: 'Đối chiếu khoa học thần kinh: "widespread deactivation... seat of conscious self-monitoring" tương ứng với "exhibits neural deactivation, reducing conscious self-censorship".',
+    explanationInVietnamese: 'Vùng vỏ não trước trán lưng bên giảm hoạt động giúp giảm bớt sự tự kiểm duyệt ý thức, giải phóng dòng chảy sáng tạo tự do.'
+  },
+  {
+    id: 'cam17-w1',
+    skill: 'writing',
+    sectionOrPart: 'Writing Task 1 Quiz (Map Comparison Evolution)',
+    question: 'In an IELTS Writing Task 1 map describing the re-development of an industrial harbor into a pedestrian marina, which verb phrase is most appropriate?',
+    options: [
+      'The derelict warehouses were demolished to make way for a modern residential complex and pedestrian promenade.',
+      'They broke the old buildings and put nice houses.',
+      'Warehouses were sleeping and then houses came.',
+      'Industrial houses changed into living rooms nicely.'
+    ],
+    correctAnswer: 'The derelict warehouses were demolished to make way for a modern residential complex and pedestrian promenade.',
+    bandTarget: 'Band 8.5+',
+    trapAnalysis: 'Cụm từ mô tả quy hoạch đô thị C2: "derelict warehouses were demolished to make way for...", kết hợp danh từ chính xác "pedestrian promenade".',
+    explanationInVietnamese: 'Câu văn sử dụng bị động chuẩn xác và từ vựng đô thị hóa cao cấp đạt chuẩn Band 8.5+.'
+  }
+];
+
+// Quick 15-Minute Band Diagnostic Placement Test Questions
+const diag15Questions: ExamQuestion[] = [
+  {
+    id: 'diag-1',
+    skill: 'listening',
+    sectionOrPart: 'Diagnostic Test Q1 (Listening Spelling & Correction Trap)',
+    question: 'Diagnostic Q1: Listen & identify the correct student registration ID number:',
+    audioScript: 'Officer: "Your allocated ID is ST-8802... wait, my computer screen just refreshed. It is actually ST-8820."',
+    options: ['ST-8820', 'ST-8802', 'ST-8082', 'ST-8200'],
+    correctAnswer: 'ST-8820',
+    bandTarget: 'Band 5.5 - 6.5 Diagnostic',
+    trapAnalysis: 'Bẫy đính chính đếm số: 8802 bị thay đổi thành 8820.',
+    explanationInVietnamese: 'Số đính chính cuối cùng là ST-8820.'
+  },
+  {
+    id: 'diag-2',
+    skill: 'reading',
+    sectionOrPart: 'Diagnostic Test Q2 (Reading Paraphrase Matching)',
+    question: "Do the statement agree with the passage? 'Renewable solar adoption dropped significantly in 2024.'",
+    passage: 'Solar photovoltaic installations experienced unprecedented global surge throughout 2024, expanding by over 38% compared to previous historic highs.',
+    options: ['TRUE', 'FALSE', 'NOT GIVEN'],
+    correctAnswer: 'FALSE',
+    bandTarget: 'Band 6.0 - 7.0 Diagnostic',
+    trapAnalysis: 'Mâu thuẫn từ vựng: "dropped significantly" trái ngược với "unprecedented global surge... expanding by 38%".',
+    explanationInVietnamese: 'Bài đọc xác nhận sản lượng điện mặt trời tăng vọt 38%, không hề sụt giảm.'
+  },
+  {
+    id: 'diag-3',
+    skill: 'writing',
+    sectionOrPart: 'Diagnostic Test Q3 (Writing Task 2 Cohesion & Coherence)',
+    question: 'Diagnostic Q3: Choose the best connector to introduce a strong contrast in an academic essay:',
+    options: [
+      'Notwithstanding the obvious financial expenditure involved, investing in clean energy infrastructure yields substantial long-term economic dividends.',
+      'But electric cars cost money so people buy petrol.',
+      'And also energy is expensive for everyone.',
+      'On top of that green energy is good.'
+    ],
+    correctAnswer: 'Notwithstanding the obvious financial expenditure involved, investing in clean energy infrastructure yields substantial long-term economic dividends.',
+    bandTarget: 'Band 7.5 - 8.5 Diagnostic',
+    trapAnalysis: 'Giới từ nhượng bộ C1/C2 "Notwithstanding" tạo câu văn học thuật sang trọng.',
+    explanationInVietnamese: ' Notwithstanding + Noun phrase là cấu trúc tương phản học thuật bậc cao.'
+  }
+];
+
 // Combine into authentic Test Sets
 export const ieltsTestSets: IeltsTestSet[] = [
+  {
+    id: 'set-cam-official-80q',
+    code: 'CAM-FULL-80Q',
+    title: 'Cambridge & IDP Official Standard Test (Đề Thi Thật Đầy Đủ 80 Câu L & R)',
+    year: '2025 Authentic Standard',
+    edition: 'Cambridge English Official Real Exam Scale',
+    difficulty: 'Thử thách chuyên sâu (Band 8.0+)',
+    description: 'Bộ đề thi chuẩn 100% cấu trúc thật: 40 câu Listening (Section 1-4) + 40 câu Reading (Passage 1-3) = 80 câu trắc nghiệm/điền từ; 2 bài viết Writing Task 1 & 2; 3 phần Speaking phỏng vấn trực tiếp cùng Giám khảo bản ngữ.',
+    targetBand: 'Band 7.0 - 9.0',
+    estimatedTimeMinutes: 165,
+    tags: ['Đủ 80 Câu L & R', 'Chuẩn Thi Thật 100%', 'Có Giám Khảo Đàm Thoại', '2 Task Viết'],
+    module: 'academic',
+    questions: [...officialListening40Questions, ...officialReading40Questions],
+    writingPrompts: officialWritingTasks,
+    speakingCueCards: officialSpeakingParts
+  },
   {
     id: 'set-cam19-academic',
     code: 'CAM-19',
@@ -413,6 +557,22 @@ export const ieltsTestSets: IeltsTestSet[] = [
     speakingCueCards: ieltsSpeakingCueCards
   },
   {
+    id: 'set-cam17-academic',
+    code: 'CAM-17',
+    title: 'Cambridge IELTS 17 Academic Test 1 (Khảo Cổ Học & Thần Kinh Học)',
+    year: '2022 - 2023',
+    edition: 'Cambridge Assessment English Authentic',
+    difficulty: 'Nâng cao (Band 7.0-8.0)',
+    description: 'Đề thi chính thức từ NXB Đại học Cambridge: Phản ánh các dạng bài đọc bảo tồn kiến trúc gỗ Trung Cổ, nghiên cứu fMRI não bộ người chơi nhạc Jazz và bẫy đổi lịch định hướng tình nguyện viên.',
+    targetBand: 'Band 7.0 - 8.5',
+    estimatedTimeMinutes: 25,
+    tags: ['Cambridge 17', 'Thần Kinh Học', 'Kiến Trúc Cổ'],
+    module: 'academic',
+    questions: cam17Questions,
+    writingPrompts: ieltsWritingPrompts,
+    speakingCueCards: ieltsSpeakingCueCards
+  },
+  {
     id: 'set-bc-forecast-2025',
     code: 'BC-FORECAST',
     title: 'British Council & IDP Real Forecast Test (Bộ Đề Dự Đoán Bẫy Điểm Cao)',
@@ -425,6 +585,22 @@ export const ieltsTestSets: IeltsTestSet[] = [
     tags: ['Dự đoán đề thi thật', 'Hội Đồng Thi BC/IDP', 'Tranh Biện Part 3'],
     module: 'academic',
     questions: bcForecastQuestions,
+    writingPrompts: ieltsWritingPrompts,
+    speakingCueCards: ieltsSpeakingCueCards
+  },
+  {
+    id: 'set-diagnostic-15min',
+    code: 'IELTS-DIAG-15',
+    title: 'Bài Kiểm Tra Đánh Giá Năng Lực Nhanh 15 Phút (Quick Diagnostic Placement)',
+    year: '2025-2026 Diagnostic',
+    edition: 'LinguaFlow IELTS Adaptive Engine',
+    difficulty: 'Tiêu chuẩn (Band 6.0-7.0)',
+    description: 'Đánh giá cấp tốc trình độ Band hiện tại (Band 4.0 -> 9.0) trong 15 phút với bộ câu hỏi thích ứng phân loại bẫy từ vựng, ngữ pháp nhượng bộ và phản xạ nghe đính chính số liệu.',
+    targetBand: 'Band 4.0 - 9.0',
+    estimatedTimeMinutes: 15,
+    tags: ['Test Nhanh 15 Phút', 'Phân Loại Trình Độ', 'Chẩn Đoán Bẫy'],
+    module: 'academic',
+    questions: diag15Questions,
     writingPrompts: ieltsWritingPrompts,
     speakingCueCards: ieltsSpeakingCueCards
   },

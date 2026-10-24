@@ -654,8 +654,8 @@ export const englishCourse: LanguageCourse = {
           track: 'daily',
           title: 'Khám Sức Khỏe & Mua Thuốc Tại Hiệu Thuốc Nước Ngoài',
           description: 'Cách miêu tả cơn đau, triệu chứng dị ứng phấn hoa/thức ăn, xuất trình bảo hiểm du lịch và mua thuốc không cần toa (OTC).',
-          durationMinutes: 5,
-          xpReward: 40,
+          durationMinutes: 6,
+          xpReward: 45,
           exercises: [
             {
               id: 'en-e13b',
@@ -683,6 +683,44 @@ export const englishCourse: LanguageCourse = {
               targetText: 'I have international travel insurance covering this medical treatment.',
               wordTokens: ['I have', 'international', 'travel insurance', 'covering', 'this medical', 'treatment.', 'passport', 'car'],
               explanation: '"Travel insurance covering..." (bảo hiểm du lịch chi trả cho việc điều trị y tế).'
+            },
+            {
+              id: 'en-e-spk-med',
+              type: 'speaking_drill',
+              prompt: 'Luyện nói câu thông báo dị ứng thuốc tại hiệu thuốc nước ngoài:',
+              targetText: 'I have a severe headache and I am allergic to penicillin.',
+              targetPhonetic: 'aɪ hæv ə sɪˈvɪər ˈhed.eɪk ænd aɪ æm əˈlɜː.dʒɪk tuː ˌpen.ɪˈsɪl.ɪn.',
+              vietnameseMeaning: 'Tôi bị đau đầu dữ dội và tôi bị dị ứng với thuốc penicillin.',
+              audioText: 'I have a severe headache and I am allergic to penicillin.',
+              speakingHints: [
+                'Trọng âm rơi vào "severe" (/sɪˈvɪər/) và "allergic" (/əˈlɜːdʒɪk/)',
+                'Phát âm rõ âm đuôi /k/ của từ "headache"',
+                'Giữ giọng điệu bình tĩnh, rõ ràng khi báo dị ứng y khoa'
+              ]
+            },
+            {
+              id: 'en-e-med-fill',
+              type: 'fill_blank',
+              prompt: 'Hỏi liều lượng dùng thuốc: "What is the recommended ______ for this pain relief medication?"',
+              options: ['dosage', 'price', 'flavor', 'volume'],
+              correctAnswer: 'dosage',
+              explanation: '"Dosage" là liều lượng dùng thuốc được bác sĩ hoặc dược sĩ chỉ định.'
+            },
+            {
+              id: 'en-e-wrt-med',
+              type: 'writing_drill',
+              prompt: 'Viết câu hỏi dược sĩ về liều dùng thuốc và xuất trình bảo hiểm y tế:',
+              vietnameseMeaning: 'Tình huống: Bạn vào hiệu thuốc nước ngoài, muốn hỏi liều dùng thuốc giảm đau mỗi ngày và xuất trình bảo hiểm du lịch của bạn.',
+              targetText: 'Could you explain the daily dosage and does my insurance cover this?',
+              acceptableAnswers: [
+                'Could you explain the daily dosage and does my insurance cover this?',
+                'What is the dosage and does my travel insurance cover it?',
+                'Could you tell me the dosage and accept my insurance?'
+              ],
+              requiredKeywords: ['dosage', 'insurance'],
+              minWords: 6,
+              grammarFocus: 'Cấu trúc y tế: "Could you explain the [dosage/usage] and does my insurance cover it?"',
+              explanation: '"Dosage" và "insurance coverage" là hai từ khóa vàng khi khám bệnh hoặc mua thuốc tại nước ngoài.'
             }
           ]
         },
@@ -725,6 +763,44 @@ export const englishCourse: LanguageCourse = {
               ],
               correctAnswer: 'Complimentary hotel accommodation and meal vouchers.',
               explanation: '"Complimentary hotel accommodation and meal vouchers" (chỗ ở khách sạn miễn phí và phiếu ăn uống) là quyền lợi bồi thường tiêu chuẩn quốc tế.'
+            },
+            {
+              id: 'en-e-spk-airport',
+              type: 'speaking_drill',
+              prompt: 'Luyện nói câu yêu cầu xếp lại chuyến bay tiếp theo do chuyến trước bị hoãn:',
+              targetText: 'Could you please rebook me on the next available flight to London?',
+              targetPhonetic: 'kʊd juː pliːz ˌriːˈbʊk miː ɒn ðə nekst əˈveɪləbl flaɪt tuː ˈlʌndən?',
+              vietnameseMeaning: 'Bạn có thể vui lòng xếp lại cho tôi chuyến bay kế tiếp tới London được không?',
+              audioText: 'Could you please rebook me on the next available flight to London?',
+              speakingHints: [
+                'Nhấn âm vào "rebook" (/ˌriːˈbʊk/) và "available" (/əˈveɪ.lə.bl̩/)',
+                'Lên giọng nhẹ ở cuối câu hỏi để giữ phép lịch sự',
+                'Nối âm nhẹ: "next available" -> /nekst əˈveɪ.lə.bl̩/'
+              ]
+            },
+            {
+              id: 'en-e-emer-fill',
+              type: 'fill_blank',
+              prompt: 'Hỏi về việc đền bù chậm chuyến: "Am I entitled to meal ______ while waiting for the next connection?"',
+              options: ['vouchers', 'passports', 'luggage', 'pilots'],
+              correctAnswer: 'vouchers',
+              explanation: '"Meal vouchers" là phiếu ăn uống được hãng hàng không phát khi chuyến bay bị hoãn quá 2-3 tiếng.'
+            },
+            {
+              id: 'en-e-wrt-airport',
+              type: 'writing_drill',
+              prompt: 'Viết câu yêu cầu bồi thường và hỗ trợ khách sạn do hoãn chuyến bay qua đêm:',
+              vietnameseMeaning: 'Tình huống: Chuyến bay bị hoãn đến sáng hôm sau. Hãy viết câu đề nghị đại diện hãng hàng không cung cấp phòng khách sạn và phiếu ăn uống miễn phí.',
+              targetText: 'Could you please provide complimentary hotel accommodation and meal vouchers for tonight?',
+              acceptableAnswers: [
+                'Could you please provide complimentary hotel accommodation and meal vouchers for tonight?',
+                'Please provide hotel accommodation and meal vouchers for the delay.',
+                'Could we have complimentary accommodation and vouchers for tonight?'
+              ],
+              requiredKeywords: ['accommodation', 'vouchers'],
+              minWords: 6,
+              grammarFocus: 'Cấu trúc quyền lợi hàng không: "Could you please provide complimentary [hotel accommodation / vouchers]?"',
+              explanation: '"Complimentary accommodation" là thuật ngữ tiêu chuẩn khi hãng bay chi trả tiền phòng khách sạn.'
             }
           ]
         },
@@ -762,6 +838,36 @@ export const englishCourse: LanguageCourse = {
               targetText: 'The kitchen sink faucet has been leaking persistently for two days.',
               wordTokens: ['The kitchen', 'sink faucet', 'has been leaking', 'persistently', 'for two days.', 'dry', 'clean'],
               explanation: '"Leak persistently" (rò rỉ nước liên tục) là cụm từ chuẩn xác khi báo chủ nhà sửa chữa gấp.'
+            },
+            {
+              id: 'en-e-spk-rent',
+              type: 'speaking_drill',
+              prompt: 'Luyện nói câu hỏi chi phí tiện ích khi đi xem nhà thuê:',
+              targetText: 'Are utilities included in the monthly rent or billed separately?',
+              targetPhonetic: 'ɑːr juːˈtɪl.ə.tiz ɪnˈkluː.dɪd ɪn ðə ˈmʌnθ.li rent ɔː bɪld ˈsep.rət.li?',
+              vietnameseMeaning: 'Chi phí điện nước đã bao gồm trong tiền thuê hàng tháng hay tính hóa đơn riêng?',
+              audioText: 'Are utilities included in the monthly rent or billed separately?',
+              speakingHints: [
+                'Trọng âm từ "utilities": /juːˈtɪl.ə.tiz/',
+                'Từ "separately": /ˈsep.rət.li/ (3 âm tiết, không đọc là se-pa-rate-ly)',
+                'Lên giọng ở "monthly rent" và hạ giọng ở "billed separately"'
+              ]
+            },
+            {
+              id: 'en-e-wrt-rent',
+              type: 'writing_drill',
+              prompt: 'Viết tin nhắn thông báo sự cố hỏng hóc và yêu cầu chủ nhà sửa chữa:',
+              vietnameseMeaning: 'Tình huống: Vòi nước bồn rửa trong căn hộ bạn thuê đang bị rò rỉ nước. Hãy viết tin nhắn ngắn gửi chủ nhà yêu cầu cử thợ đến kiểm tra và khắc phục.',
+              targetText: 'The faucet is leaking persistently, could you please send a plumber to inspect it?',
+              acceptableAnswers: [
+                'The faucet is leaking persistently, could you please send a plumber to inspect it?',
+                'The faucet is leaking, please send someone to repair it.',
+                'The sink faucet is leaking, could you arrange a repair soon?'
+              ],
+              requiredKeywords: ['leaking', 'plumber'],
+              minWords: 6,
+              grammarFocus: 'Cấu trúc thuê nhà: "The [appliance] is leaking/broken, could you please send a technician/plumber to inspect it?"',
+              explanation: '"Plumber" (thợ sửa ống nước) và "inspect/repair" là những thuật ngữ chuẩn mực khi làm việc với ban quản lý toà nhà.'
             }
           ]
         }
@@ -926,7 +1032,7 @@ export const englishCourse: LanguageCourse = {
           title: 'Thuyết Trình Báo Cáo Kinh Doanh & Số Liệu KPI',
           description: 'Mẫu câu mở đầu buổi thuyết trình, giải thích biểu đồ cột/đường và chuyển giao slide thuyết phục.',
           durationMinutes: 6,
-          xpReward: 45,
+          xpReward: 50,
           exercises: [
             {
               id: 'en-e18b',
@@ -954,6 +1060,36 @@ export const englishCourse: LanguageCourse = {
               targetText: 'To summarize, the key takeaway from this report is cost optimization.',
               wordTokens: ['To summarize,', 'the key takeaway', 'from this report', 'is cost', 'optimization.', 'spend', 'expensive'],
               explanation: '"Key takeaway" là bài học hay thông điệp cốt lõi quan trọng nhất mà khán giả cần ghi nhớ.'
+            },
+            {
+              id: 'en-e-spk-pres',
+              type: 'speaking_drill',
+              prompt: 'Luyện nói câu phân tích biểu đồ KPI thuyết phục trước ban giám đốc:',
+              targetText: 'As you can see from this chart, our revenue peaked in the third quarter.',
+              targetPhonetic: 'æz juː kæn siː frɒm ðɪs tʃɑːt, ˈaʊə ˈrevənjuː piːkt ɪn ðə θɜːd ˈkwɔːtə.',
+              vietnameseMeaning: 'Như quý vị thấy trên biểu đồ này, doanh thu của chúng ta đã đạt đỉnh vào quý ba.',
+              audioText: 'As you can see from this chart, our revenue peaked in the third quarter.',
+              speakingHints: [
+                'Nhấn mạnh vào các từ mang dữ liệu: "revenue", "peaked", "third quarter"',
+                'Ngắt hơi nhẹ sau dấu phẩy: "...from this chart, [pause] our revenue..."',
+                'Giọng điệu đĩnh đạc, tự tin trước hội đồng lãnh đạo'
+              ]
+            },
+            {
+              id: 'en-e-wrt-pres',
+              type: 'writing_drill',
+              prompt: 'Viết câu chuyển tiếp slide và tóm tắt thông điệp quan trọng của báo cáo:',
+              vietnameseMeaning: 'Tình huống: Bạn đang thuyết trình slide tài chính. Hãy viết câu hoàn chỉnh chuyển tiếp sự chú ý của người nghe sang thông điệp cốt lõi về việc tối ưu chi phí vận hành.',
+              targetText: 'Now let us turn our attention to the key takeaway regarding cost optimization.',
+              acceptableAnswers: [
+                'Now let us turn our attention to the key takeaway regarding cost optimization.',
+                'Let us turn our attention to the main takeaway about cost optimization.',
+                'Now let us focus our attention on cost optimization as the key takeaway.'
+              ],
+              requiredKeywords: ['attention', 'takeaway', 'optimization'],
+              minWords: 6,
+              grammarFocus: 'Cấu trúc thuyết trình: "Now let us turn our attention to [point / key takeaway]"',
+              explanation: '"Key takeaway" là từ khóa đắt giá nhất trong văn hóa thuyết trình báo cáo hiện đại.'
             }
           ]
         },
@@ -991,6 +1127,36 @@ export const englishCourse: LanguageCourse = {
               targetText: 'We propose an initial deposit of thirty percent upon contract signing.',
               wordTokens: ['We propose', 'an initial deposit', 'of thirty percent', 'upon contract', 'signing.', 'cancel', 'free'],
               explanation: '"Initial deposit upon contract signing" là điều khoản thanh toán tiền cọc ngay khi ký kết.'
+            },
+            {
+              id: 'en-e-spk-nego',
+              type: 'speaking_drill',
+              prompt: 'Luyện nói câu nhượng bộ có điều kiện tại bàn đàm phán thương mại:',
+              targetText: 'We are willing to offer a discount, provided that you increase the order volume.',
+              targetPhonetic: 'wiː ɑː ˈwɪlɪŋ tuː ˈɒfər ə ˈdɪskaʊnt, prəˈvaɪdɪd ðæt juː ɪnˈkriːs ðə ˈɔːdə ˈvɒljuːm.',
+              vietnameseMeaning: 'Chúng tôi sẵn lòng chiết khấu, với điều kiện là quý đối tác tăng khối lượng đơn hàng.',
+              audioText: 'We are willing to offer a discount, provided that you increase the order volume.',
+              speakingHints: [
+                'Cụm liên từ pháp lý "provided that": phát âm dứt khoát',
+                'Nhấn mạnh vào cặp điều kiện: "discount" và "increase the order volume"',
+                'Giữ phong thái hòa nhã nhưng nguyên tắc, kiên định'
+              ]
+            },
+            {
+              id: 'en-e-wrt-nego',
+              type: 'writing_drill',
+              prompt: 'Viết câu phản hồi điều khoản hợp đồng đề xuất mức đặt cọc và phương thức thanh toán:',
+              vietnameseMeaning: 'Tình huống: Bạn đại diện công ty đàm phán hợp đồng cung ứng. Hãy viết câu đề xuất mức đặt cọc 30% khi ký kết hợp đồng và thanh toán phần còn lại khi nhận hàng.',
+              targetText: 'We propose an initial deposit of thirty percent upon signing the contract.',
+              acceptableAnswers: [
+                'We propose an initial deposit of thirty percent upon signing the contract.',
+                'We propose a thirty percent initial deposit upon signing the contract.',
+                'We propose an initial deposit of thirty percent upon contract signing.'
+              ],
+              requiredKeywords: ['propose', 'deposit', 'signing'],
+              minWords: 6,
+              grammarFocus: 'Cấu trúc đàm phán hợp đồng: "We propose an initial deposit of [X]% upon [signing / delivery]"',
+              explanation: '"Upon contract signing" là thuật ngữ pháp lý thương mại chuẩn mực.'
             }
           ]
         },
@@ -999,7 +1165,7 @@ export const englishCourse: LanguageCourse = {
           track: 'workplace',
           title: 'Giao Tiếp Làm Việc Từ Xa & Họp Trực Tuyến (Remote Work & Virtual Collaboration)',
           description: 'Các mẫu câu xử lý sự cố mic/màn hình, cập nhật tiến độ bất đồng bộ trên Slack/Teams và văn hóa "Take it offline".',
-          durationMinutes: 5,
+          durationMinutes: 6,
           xpReward: 45,
           exercises: [
             {
@@ -1033,6 +1199,36 @@ export const englishCourse: LanguageCourse = {
               options: ['share', 'show off', 'record', 'delete'],
               correctAnswer: 'share',
               explanation: '"Share one\'s screen" là cụm từ chuẩn mực khi trình chiếu màn hình máy tính trong họp trực tuyến.'
+            },
+            {
+              id: 'en-e-spk-remote',
+              type: 'speaking_drill',
+              prompt: 'Luyện nói câu đề xuất trao đổi riêng vấn đề kỹ thuật sau cuộc họp trực tuyến:',
+              targetText: 'Let us take this discussion offline and sync up after the meeting.',
+              targetPhonetic: 'let ʌs teɪk ðɪs dɪˈskʌʃn ˌɒfˈlaɪn ænd sɪŋk ʌp ˈɑːftə ðə ˈmiːtɪŋ.',
+              vietnameseMeaning: 'Chúng ta hãy để vấn đề này trao đổi riêng sau cuộc họp nhé.',
+              audioText: 'Let us take this discussion offline and sync up after the meeting.',
+              speakingHints: [
+                'Cụm thành ngữ "take this offline": nhấn vào "offline"',
+                'Cụm "sync up": /sɪŋk ʌp/ (đồng bộ/trao đổi trực tiếp)',
+                'Ngữ điệu tôn trọng thời gian của tập thể'
+              ]
+            },
+            {
+              id: 'en-e-wrt-remote',
+              type: 'writing_drill',
+              prompt: 'Viết tin nhắn Slack/Teams thông báo cập nhật tiến độ công việc bất đồng bộ:',
+              vietnameseMeaning: 'Tình huống: Bạn làm việc từ xa, muốn thông báo với nhóm rằng bạn đã hoàn thành tài liệu kiến trúc và chia sẻ đường dẫn để mọi người cho ý kiến phản hồi.',
+              targetText: 'I have shared the document link, please review and provide your feedback.',
+              acceptableAnswers: [
+                'I have shared the document link, please review and provide your feedback.',
+                'I have shared the link, please review it and give feedback.',
+                'Please find the shared link and let me know your feedback.'
+              ],
+              requiredKeywords: ['shared', 'feedback'],
+              minWords: 6,
+              grammarFocus: 'Giao tiếp bất đồng bộ (Asynchronous): "I have shared the [link/document], please review and provide your feedback."',
+              explanation: 'Đây là phong cách giao tiếp chuẩn mực của các kỹ sư và chuyên viên làm việc tại các công ty công nghệ đa quốc gia (GitLab, Automattic, Google).'
             }
           ]
         }
@@ -1085,6 +1281,36 @@ export const englishCourse: LanguageCourse = {
               ],
               correctAnswer: 'Nêu một điểm bạn từng chưa giỏi, kèm theo hành động cụ thể bạn đã và đang rèn luyện để khắc phục nó.',
               explanation: 'Nhà tuyển dụng đánh giá cao Self-awareness (khả năng tự nhận thức) và tinh thần cải tiến liên tục (growth mindset).'
+            },
+            {
+              id: 'en-e-spk-l8',
+              type: 'speaking_drill',
+              prompt: 'Luyện nói câu định vị kinh nghiệm chuyên môn trong 90 giây mở đầu:',
+              targetText: 'I have over four years of experience specializing in software product development.',
+              targetPhonetic: 'aɪ hæv ˈəʊvə fɔː jɪəz əv ɪkˈspɪəriəns ˈspeʃəlaɪzɪŋ ɪn ˈsɒftweə ˈprɒdʌkt dɪˈveləpmənt.',
+              vietnameseMeaning: 'Tôi có hơn 4 năm kinh nghiệm chuyên sâu về phát triển sản phẩm phần mềm.',
+              audioText: 'I have over four years of experience specializing in software product development.',
+              speakingHints: [
+                'Nhấn rõ cụm từ năng lực cốt lõi: "specializing in software product development"',
+                'Giữ tốc độ vừa phải, giọng nói ấm áp và tự tin',
+                'Ngắt hơi nhẹ sau cụm "four years of experience"'
+              ]
+            },
+            {
+              id: 'en-e-wrt-l8',
+              type: 'writing_drill',
+              prompt: 'Viết câu mở đầu giới thiệu bản thân nêu bật chuyên môn và mục tiêu cống hiến:',
+              vietnameseMeaning: 'Tình huống: Bạn bước vào vòng phỏng vấn cho vị trí chuyên viên cấp cao. Hãy viết câu hoàn chỉnh nêu bật kinh nghiệm chuyên sâu và sự sẵn sàng tạo ra giá trị cho công ty.',
+              targetText: 'I specialize in digital transformation and look forward to delivering measurable value to your team.',
+              acceptableAnswers: [
+                'I specialize in digital transformation and look forward to delivering measurable value to your team.',
+                'I specialize in product development and aim to deliver great value to your company.',
+                'I have deep experience and look forward to delivering value to your team.'
+              ],
+              requiredKeywords: ['specialize', 'delivering', 'value'],
+              minWords: 6,
+              grammarFocus: 'Cấu trúc phỏng vấn: "I specialize in [field] and look forward to delivering [measurable value / impact] to your team."',
+              explanation: '"Measurable value" (giá trị đo lường được) là từ khóa mà các giám đốc tuyển dụng luôn muốn nghe.'
             }
           ]
         },
@@ -1122,6 +1348,36 @@ export const englishCourse: LanguageCourse = {
               targetText: 'At that critical juncture, our team was severely understaffed.',
               wordTokens: ['At that critical juncture,', 'our team', 'was severely', 'understaffed.', 'happy', 'rich'],
               explanation: '"At that critical juncture" (Tại thời khắc then chốt đó) tạo bối cảnh kịch tính làm nổi bật hành động giải cứu của bạn.'
+            },
+            {
+              id: 'en-e-spk-l9',
+              type: 'speaking_drill',
+              prompt: 'Luyện nói câu nêu kết quả thành công với số liệu định lượng (STAR Result):',
+              targetText: 'As a direct result of our initiative, customer retention surged by twenty-five percent.',
+              targetPhonetic: 'æz ə daɪˈrekt rɪˈzʌlt əv ˈaʊər ɪˈnɪʃ.ə.tɪv, ˈkʌs.tə.mər rɪˈten.ʃən sɜːdʒd baɪ ˈtwen.ti faɪv pəˈsent.',
+              vietnameseMeaning: 'Nhờ sáng kiến của chúng tôi, tỷ lệ giữ chân khách hàng đã tăng vọt 25%.',
+              audioText: 'As a direct result of our initiative, customer retention surged by twenty-five percent.',
+              speakingHints: [
+                'Trọng âm từ "initiative": /ɪˈnɪʃ.ə.tɪv/ (nhấn âm 2)',
+                'Động từ "surged": phát âm đuôi /dʒd/ dứt khoát',
+                'Nhấn mạnh vào con số "twenty-five percent" để làm nổi bật thành tựu'
+              ]
+            },
+            {
+              id: 'en-e-wrt-l9',
+              type: 'writing_drill',
+              prompt: 'Viết câu trình bày hành động và kết quả đo lường được theo kỹ thuật STAR:',
+              vietnameseMeaning: 'Tình huống: Nhà tuyển dụng yêu cầu bạn nêu một thành tựu nổi bật. Hãy viết câu mô tả bạn đã chủ động hành động và giúp tăng năng suất làm việc của nhóm thêm 30%.',
+              targetText: 'I took immediate action to streamline the workflow, which boosted team productivity by thirty percent.',
+              acceptableAnswers: [
+                'I took immediate action to streamline the workflow, which boosted team productivity by thirty percent.',
+                'I took action to streamline the process, boosting team productivity by thirty percent.',
+                'I initiated a new workflow, which improved productivity by thirty percent.'
+              ],
+              requiredKeywords: ['action', 'productivity', 'percent'],
+              minWords: 6,
+              grammarFocus: 'Cấu trúc STAR kết quả: "I took action to [verb], which boosted/increased [metric] by [X] percent."',
+              explanation: 'Kết hợp mệnh đề quan hệ không xác định ", which boosted..." là cách viết báo cáo thành tích cao cấp.'
             }
           ]
         },
@@ -1130,7 +1386,7 @@ export const englishCourse: LanguageCourse = {
           track: 'workplace',
           title: 'Xử Lý Câu Hỏi Hóc Búa: Lý Do Nghỉ Việc Cũ (Handling Red Flags)',
           description: 'Cách giải thích lý do rời công ty cũ văn minh, chuyên nghiệp và chuyển hướng tích cực sang cơ hội tương lai.',
-          durationMinutes: 5,
+          durationMinutes: 6,
           xpReward: 50,
           exercises: [
             {
@@ -1156,6 +1412,44 @@ export const englishCourse: LanguageCourse = {
               ],
               correctAnswer: 'Thừa nhận sai lầm một cách thẳng thắn, phân tích nguyên nhân gốc rễ và chia sẻ quy trình bạn đã thiết lập lại để sự cố đó không bao giờ lặp lại.',
               explanation: 'Khả năng chịu trách nhiệm (Accountability) và học hỏi từ thất bại (Learning from failure) là những phẩm chất lãnh đạo cốt lõi.'
+            },
+            {
+              id: 'en-e-weak-bld',
+              type: 'sentence_build',
+              prompt: 'Sắp xếp câu: "Tôi xem sai sót đó là một cơ hội học hỏi quý giá giúp tôi hoàn thiện bản thân."',
+              targetText: 'I viewed that mistake as a valuable learning opportunity to refine my approach.',
+              wordTokens: ['I viewed', 'that mistake', 'as a valuable', 'learning opportunity', 'to refine', 'my approach.', 'blame', 'angry'],
+              explanation: '"View as a learning opportunity to refine my approach" thể hiện tư duy cầu tiến (growth mindset).'
+            },
+            {
+              id: 'en-e-spk-weak',
+              type: 'speaking_drill',
+              prompt: 'Luyện nói câu giải thích lý do chuyển việc văn minh và hướng tới tương lai:',
+              targetText: 'I am looking for a new challenge where I can broaden my technical skills and leadership scope.',
+              targetPhonetic: 'aɪ æm ˈlʊkɪŋ fɔːr ə njuː ˈtʃælɪndʒ weər aɪ kæn ˈbrɔːdn maɪ ˈteknɪkl skɪlz ænd ˈliːdəʃɪp skəʊp.',
+              vietnameseMeaning: 'Tôi đang tìm kiếm một thử thách mới nơi tôi có thể mở rộng kỹ năng kỹ thuật và phạm vi lãnh đạo.',
+              audioText: 'I am looking for a new challenge where I can broaden my technical skills and leadership scope.',
+              speakingHints: [
+                'Động từ "broaden": /ˈbrɔː.dən/ (mở rộng)',
+                'Cụm "leadership scope": nhấn vào "leadership"',
+                'Giọng điệu tích cực, toát lên tinh thần khao khát phát triển'
+              ]
+            },
+            {
+              id: 'en-e-wrt-weak',
+              type: 'writing_drill',
+              prompt: 'Viết câu trả lời về lý do bạn ứng tuyển vào vị trí mới tại công ty này:',
+              vietnameseMeaning: 'Tình huống: Người phỏng vấn hỏi tại sao bạn muốn thay đổi công việc. Hãy viết câu thể hiện lòng biết ơn công ty cũ nhưng mong muốn tìm kiếm một môi trường đột phá để nâng tầm năng lực.',
+              targetText: 'While I appreciated my previous role, I am ready for a new challenge to broaden my professional scope.',
+              acceptableAnswers: [
+                'While I appreciated my previous role, I am ready for a new challenge to broaden my professional scope.',
+                'I am looking for a new challenge where I can broaden my skills and experience.',
+                'While I valued my past experience, I am seeking a new challenge to grow professionally.'
+              ],
+              requiredKeywords: ['challenge', 'broaden', 'scope'],
+              minWords: 6,
+              grammarFocus: 'Cấu trúc chuyển hướng tích cực: "While I [valued/appreciated] my previous role, I am looking for a new challenge to broaden my [scope/skills]."',
+              explanation: 'Cách diễn đạt này hoàn toàn loại bỏ rủi ro bị coi là "nói xấu công ty cũ", thể hiện tầm vóc chuyên nghiệp.'
             }
           ]
         },
@@ -1164,7 +1458,7 @@ export const englishCourse: LanguageCourse = {
           track: 'workplace',
           title: 'Đàm Phán Lương Thưởng & Đặt Câu Hỏi Chiến Lược Cho HR',
           description: 'Cách hỏi ngược lại HR thông minh ở cuối buổi phỏng vấn và trao đổi mức lương kỳ vọng đầy tự tin.',
-          durationMinutes: 5,
+          durationMinutes: 6,
           xpReward: 50,
           exercises: [
             {
@@ -1193,6 +1487,36 @@ export const englishCourse: LanguageCourse = {
               options: ['progression', 'resignation', 'punishment', 'isolation'],
               correctAnswer: 'progression',
               explanation: '"Career progression paths" (lộ trình thăng tiến sự nghiệp) thể hiện tầm nhìn gắn bó lâu dài.'
+            },
+            {
+              id: 'en-e-spk-l10',
+              type: 'speaking_drill',
+              prompt: 'Luyện nói câu hỏi ngược lại nhà tuyển dụng về thước đo thành công trong 90 ngày đầu:',
+              targetText: 'What does success look like in this role over the first ninety days?',
+              targetPhonetic: 'wɒt dʌz səkˈses lʊk laɪk ɪn ðɪs rəʊl ˈəʊvə ðə fɜːst ˈnaɪnti deɪz?',
+              vietnameseMeaning: 'Thành công ở vị trí này trong 90 ngày đầu tiên sẽ được định nghĩa như thế nào?',
+              audioText: 'What does success look like in this role over the first ninety days?',
+              speakingHints: [
+                'Trọng âm từ "success": /səkˈses/ (nhấn âm 2)',
+                'Cụm "first ninety days": nhấn vào "ninety days"',
+                'Giữ ánh mắt tự tin, ngữ điệu cầu thị và chuyên nghiệp'
+              ]
+            },
+            {
+              id: 'en-e-wrt-l10',
+              type: 'writing_drill',
+              prompt: 'Viết câu trả lời về mức lương kỳ vọng linh hoạt dựa trên toàn bộ gói đãi ngộ:',
+              vietnameseMeaning: 'Tình huống: HR hỏi về mức lương mong muốn của bạn. Hãy viết câu phản hồi khéo léo rằng mức đãi ngộ có thể linh hoạt điều chỉnh tùy thuộc vào các chế độ thưởng, bảo hiểm và cơ hội thăng tiến.',
+              targetText: 'My salary expectations are flexible depending on the overall benefits and growth opportunities.',
+              acceptableAnswers: [
+                'My salary expectations are flexible depending on the overall benefits and growth opportunities.',
+                'My salary expectations are flexible based on the total benefits package.',
+                'My expectations are flexible depending on the overall compensation package.'
+              ],
+              requiredKeywords: ['salary', 'flexible', 'benefits'],
+              minWords: 6,
+              grammarFocus: 'Cấu trúc đàm phán lương: "My salary expectations are flexible depending on [benefits / total package / growth opportunities]."',
+              explanation: 'Đây là câu nói kinh điển của các chuyên gia tư vấn nghề nghiệp quốc tế khi bảo vệ vị thế thương lượng.'
             }
           ]
         },
@@ -1235,6 +1559,36 @@ export const englishCourse: LanguageCourse = {
               targetText: 'A great leader attributes success to the team and shoulders responsibility for setbacks.',
               wordTokens: ['A great leader', 'attributes success', 'to the team', 'and shoulders', 'responsibility', 'for setbacks.', 'blame', 'money'],
               explanation: '"Attributes success to... and shoulders responsibility for..." (ghi nhận thành công cho nhóm và gánh vác trách nhiệm khi gặp nghịch cảnh).'
+            },
+            {
+              id: 'en-e-spk-lead',
+              type: 'speaking_drill',
+              prompt: 'Luyện nói câu tuyên ngôn triết lý lãnh đạo hiện đại:',
+              targetText: 'I lead by empowering my team and fostering an environment of psychological safety.',
+              targetPhonetic: 'aɪ liːd baɪ ɪmˈpaʊərɪŋ maɪ tiːm ænd ˈfɒstərɪŋ ən ɪnˈvaɪrənmənt əv ˌsaɪkəˈlɒdʒɪkl ˈseɪfti.',
+              vietnameseMeaning: 'Tôi lãnh đạo bằng cách trao quyền cho đội ngũ và nuôi dưỡng môi trường an toàn tâm lý.',
+              audioText: 'I lead by empowering my team and fostering an environment of psychological safety.',
+              speakingHints: [
+                'Thuật ngữ quan trọng "psychological safety": /ˌsaɪkəˈlɒdʒɪkl ˈseɪfti/',
+                'Động từ "empowering": nhấn âm 2 /ɪmˈpaʊərɪŋ/',
+                'Giọng điệu truyền cảm hứng, điềm đạm và thấu cảm'
+              ]
+            },
+            {
+              id: 'en-e-wrt-lead',
+              type: 'writing_drill',
+              prompt: 'Viết câu trả lời về phương pháp giải quyết xung đột ý kiến giữa các kỹ sư trong nhóm:',
+              vietnameseMeaning: 'Tình huống: Người phỏng vấn hỏi bạn xử lý xung đột trong nhóm như thế nào. Hãy viết câu khẳng định bạn luôn lắng nghe hai chiều và thúc đẩy quyết định dựa trên dữ liệu khách quan.',
+              targetText: 'I resolve conflicts by listening empathetically and guiding the team toward data-driven decisions.',
+              acceptableAnswers: [
+                'I resolve conflicts by listening empathetically and guiding the team toward data-driven decisions.',
+                'I resolve conflicts by listening to both sides and making data-driven decisions.',
+                'I handle team disagreements by focusing on empathy and data-driven solutions.'
+              ],
+              requiredKeywords: ['conflicts', 'data-driven', 'decisions'],
+              minWords: 6,
+              grammarFocus: 'Cấu trúc quản lý: "I resolve conflicts by [listening empathetically] and guiding the team toward [data-driven decisions]."',
+              explanation: '"Data-driven decisions" kết hợp "empathy" là công thức vàng của các nhà lãnh đạo công nghệ thế kỷ 21.'
             }
           ]
         }
@@ -1282,6 +1636,36 @@ export const englishCourse: LanguageCourse = {
               targetText: 'Solar energy consumption reached a peak in 2022 before plateauing.',
               wordTokens: ['Solar energy consumption', 'reached a peak', 'in 2022', 'before', 'plateauing.', 'dropping', 'cold'],
               explanation: '"Reach a peak" (chạm đỉnh) và "plateau" (đi ngang ổn định sau khi tăng) là cặp từ vựng Task 1 đắt giá.'
+            },
+            {
+              id: 'en-e-spk-ielts1',
+              type: 'speaking_drill',
+              prompt: 'Luyện nói câu phân tích xu hướng số liệu biểu đồ Task 1:',
+              targetText: 'After a brief period of stability, global exports plummeted drastically before plateauing.',
+              targetPhonetic: 'ˈɑːftər ə briːf ˈpɪəriəd əv stəˈbɪləti, ˈɡləʊbl ˈekspɔːts ˈplʌmɪtɪd ˈdræstɪkli bɪˈfɔː ˈplætəʊɪŋ.',
+              vietnameseMeaning: 'Sau một giai đoạn ổn định ngắn ngủi, lượng hàng xuất khẩu toàn cầu đã lao dốc mạnh trước khi đi ngang.',
+              audioText: 'After a brief period of stability, global exports plummeted drastically before plateauing.',
+              speakingHints: [
+                'Trọng âm từ "stability": /stəˈbɪl.ə.ti/ (nhấn âm 2)',
+                'Động từ "plummeted": /ˈplʌm.ɪ.tɪd/ (nhấn âm 1)',
+                'Động từ "plateauing": /ˈplæt.əʊ.ɪŋ/'
+              ]
+            },
+            {
+              id: 'en-e-wrt-ielts1',
+              type: 'writing_drill',
+              prompt: 'Viết câu miêu tả xu hướng biến động dữ liệu cho bài thi IELTS Writing Task 1:',
+              vietnameseMeaning: 'Tình huống: Đề bài yêu cầu miêu tả biểu đồ năng lượng tái tạo. Hãy viết câu nêu rõ lượng tiêu thụ đã chạm đỉnh vào năm 2022 trước khi duy trì ổn định.',
+              targetText: 'Renewable energy consumption reached a peak in 2022 before plateauing for the rest of the period.',
+              acceptableAnswers: [
+                'Renewable energy consumption reached a peak in 2022 before plateauing for the rest of the period.',
+                'Energy consumption reached a peak in 2022 before plateauing.',
+                'Solar energy reached a peak in 2022 before remaining stable.'
+              ],
+              requiredKeywords: ['reached', 'peak', 'plateauing'],
+              minWords: 6,
+              grammarFocus: 'Cấu trúc Task 1 đỉnh cao: "Subject + reached a peak in [year] before plateauing / stabilizing"',
+              explanation: 'Sử dụng cấu trúc "reached a peak... before plateauing" giúp thí sinh đạt điểm tối đa tiêu chí Lexical Resource và Grammatical Range.'
             }
           ]
         },
@@ -1319,6 +1703,36 @@ export const englishCourse: LanguageCourse = {
               options: ['conversely', 'because', 'so that', 'although'],
               correctAnswer: 'conversely',
               explanation: '"Conversely" (ngược lại hoàn toàn) là trạng từ liên kết học thuật trang trọng nối hai mệnh đề đối lập sâu sắc.'
+            },
+            {
+              id: 'en-e-spk-ielts2',
+              type: 'speaking_drill',
+              prompt: 'Luyện nói câu dẫn chứng học thuật Band 8.0+ cho bài thi:',
+              targetText: 'A pertinent example of this is Finland, which prioritizes holistic development over standardized testing.',
+              targetPhonetic: 'ə ˈpɜːtɪnənt ɪɡˈzɑːmpl əv ðɪs ɪz ˈfɪnlənd, wɪtʃ praɪˈɒrətaɪzɪz həʊˈlɪstɪk dɪˈveləpmənt.',
+              vietnameseMeaning: 'Một ví dụ thích đáng cho điều này là Phần Lan, nơi ưu tiên phát triển toàn diện thay vì thi cử rập khuôn.',
+              audioText: 'A pertinent example of this is Finland, which prioritizes holistic development over standardized testing.',
+              speakingHints: [
+                'Từ học thuật "pertinent": /ˈpɜː.tɪ.nənt/ (thích đáng, chuẩn xác)',
+                'Động từ "prioritizes": /praɪˈɒr.ə.taɪ.zɪz/',
+                'Cụm "holistic development": phát âm tròn vành rõ chữ'
+              ]
+            },
+            {
+              id: 'en-e-wrt-ielts2',
+              type: 'writing_drill',
+              prompt: 'Viết câu kết luận đoạn (Link sentence) trong mô hình PEEL cho bài luận Task 2:',
+              vietnameseMeaning: 'Tình huống: Bạn vừa phân tích xong các luận cứ về chuyển đổi xanh. Hãy viết câu kết nối chốt lại rằng đầu tư vào năng lượng tái tạo sẽ mang lại lợi ích dài hạn vượt trội.',
+              targetText: 'Therefore, it is evident that investing in clean energy yields superior long-term benefits.',
+              acceptableAnswers: [
+                'Therefore, it is evident that investing in clean energy yields superior long-term benefits.',
+                'Therefore, it is evident that investing in renewable energy yields superior long-term benefits.',
+                'Thus, it is clear that investing in green energy yields superior long-term benefits.'
+              ],
+              requiredKeywords: ['evident', 'yields', 'benefits'],
+              minWords: 6,
+              grammarFocus: 'Cấu trúc Link trong PEEL: "Therefore, it is evident that [action/policy] yields superior [adjective] benefits."',
+              explanation: '"It is evident that... yields superior benefits" là lối hành văn học thuật chuẩn mực của Cambridge Band 8.5.'
             }
           ]
         },
@@ -1361,6 +1775,36 @@ export const englishCourse: LanguageCourse = {
               targetText: 'Without timely governmental intervention, urban pollution will inevitably exacerbate.',
               wordTokens: ['Without timely', 'governmental intervention,', 'urban pollution', 'will inevitably', 'exacerbate.', 'stop', 'clean'],
               explanation: '"Inevitably exacerbate" (chắc chắn sẽ trở nên trầm trọng hơn) là colocation Band 8.5+.'
+            },
+            {
+              id: 'en-e-spk-area',
+              type: 'speaking_drill',
+              prompt: 'Luyện nói câu phân tích đa chiều mở đầu IELTS Speaking Part 3:',
+              targetText: 'From my perspective, artificial intelligence is a double-edged sword with profound benefits and tangible drawbacks.',
+              targetPhonetic: 'frɒm maɪ pəˈspektɪv, ˌɑːtɪˈfɪʃl ɪnˈtelɪdʒəns ɪz ə ˈdʌbld edʒd sɔːd wɪð prəˈfaʊnd ˈbenɪfɪts.',
+              vietnameseMeaning: 'Theo góc nhìn của tôi, trí tuệ nhân tạo là một con dao hai lưỡi với cả những lợi ích sâu sắc lẫn những mặt hạn chế rõ rệt.',
+              audioText: 'From my perspective, artificial intelligence is a double-edged sword with profound benefits and tangible drawbacks.',
+              speakingHints: [
+                'Cụm thành ngữ "double-edged sword": /ˈdʌb.l̩.edʒd sɔːd/',
+                'Tính từ "profound": /prəˈfaʊnd/ (sâu sắc)',
+                'Giữ nhịp điệu mượt mà, tránh ngắt quãng giữa các cụm ý'
+              ]
+            },
+            {
+              id: 'en-e-wrt-area',
+              type: 'writing_drill',
+              prompt: 'Viết câu mở đầu phân tích vấn đề xã hội đa chiều cho IELTS Speaking Part 3 hoặc Task 2:',
+              vietnameseMeaning: 'Tình huống: Giám khảo hỏi về tác động của công nghệ hiện đại. Hãy viết câu nêu rõ đây là vấn đề hai mặt với cả những lợi ích sâu sắc lẫn những rủi ro hiện hữu.',
+              targetText: 'From my perspective, this trend is a double-edged sword with profound benefits and tangible risks.',
+              acceptableAnswers: [
+                'From my perspective, this trend is a double-edged sword with profound benefits and tangible risks.',
+                'From my perspective, this is a double-edged sword with profound benefits and drawbacks.',
+                'In my opinion, this issue is a double-edged sword with profound benefits and tangible risks.'
+              ],
+              requiredKeywords: ['perspective', 'double-edged', 'benefits'],
+              minWords: 6,
+              grammarFocus: 'Cấu trúc đa chiều A.R.E.A: "From my perspective, [subject] is a double-edged sword with profound benefits and tangible [risks/drawbacks]."',
+              explanation: 'Thể hiện tư duy phản biện cao cấp, được giám khảo IELTS chấm điểm cao ở tiêu chí Lexical Resource.'
             }
           ]
         },
@@ -1403,6 +1847,36 @@ export const englishCourse: LanguageCourse = {
               targetText: 'Skimming enables readers to grasp the overarching narrative while scanning pinpoints specific nomenclature.',
               wordTokens: ['Skimming enables', 'readers to grasp', 'the overarching narrative', 'while scanning', 'pinpoints specific', 'nomenclature.', 'slow', 'word'],
               explanation: '"Overarching narrative" (mạch truyện/ý đồ bao quát) và "specific nomenclature" (thuật ngữ/danh pháp chuyên môn cụ thể).'
+            },
+            {
+              id: 'en-e-spk-read',
+              type: 'speaking_drill',
+              prompt: 'Luyện nói quy tắc phân định True, False và Not Given trong IELTS Reading:',
+              targetText: 'A statement is False only when the passage directly refutes it, otherwise it is Not Given.',
+              targetPhonetic: 'ə ˈsteɪtmənt ɪz fɔːls ˈəʊnli wen ðə ˈpæsɪdʒ daɪˈrektli rɪˈfjuːts ɪt, ˈʌðəwaɪz ɪt ɪz nɒt ˈɡɪvn.',
+              vietnameseMeaning: 'Một nhận định chỉ là False khi bài đọc trực tiếp bác bỏ nó, ngược lại nó phải là Not Given.',
+              audioText: 'A statement is False only when the passage directly refutes it, otherwise it is Not Given.',
+              speakingHints: [
+                'Động từ "refutes": /rɪˈfjuːts/ (bác bỏ hoàn toàn)',
+                'Nhấn mạnh vào cặp đối lập: "directly refutes" và "Not Given"',
+                'Ngắt nhịp rõ ràng sau dấu phẩy'
+              ]
+            },
+            {
+              id: 'en-e-wrt-read',
+              type: 'writing_drill',
+              prompt: 'Viết câu ghi chú chiến thuật làm bài đọc hiểu học thuật đối với bẫy thông tin:',
+              vietnameseMeaning: 'Tình huống: Bạn ghi chép sổ tay luyện thi IELTS Reading. Hãy viết quy tắc: Kỹ thuật skimming giúp nắm bắt chủ đề chính còn scanning định vị nhanh số liệu cụ thể.',
+              targetText: 'Skimming helps identify the overarching topic while scanning pinpoints specific dates and figures.',
+              acceptableAnswers: [
+                'Skimming helps identify the overarching topic while scanning pinpoints specific dates and figures.',
+                'Skimming grasps the main idea while scanning locates specific numbers and dates.',
+                'Skimming identifies the main theme while scanning pinpoints specific facts.'
+              ],
+              requiredKeywords: ['skimming', 'scanning', 'specific'],
+              minWords: 6,
+              grammarFocus: 'Cấu trúc so sánh song song: "Skimming [verb phrase] while scanning [verb phrase]."',
+              explanation: 'Làm chủ sự khác biệt giữa hai kỹ năng đọc quét là nền tảng để hoàn thành 3 bài đọc dài 700-900 từ trong đúng 60 phút.'
             }
           ]
         },
@@ -1445,6 +1919,36 @@ export const englishCourse: LanguageCourse = {
               ],
               correctAnswer: 'three expensive computers (3 từ)',
               explanation: '"three expensive computers" gồm 3 từ, vượt quá giới hạn "NO MORE THAN TWO WORDS" nên bị tính 0 điểm dù đúng nghĩa.'
+            },
+            {
+              id: 'en-e-spk-list',
+              type: 'speaking_drill',
+              prompt: 'Luyện nói câu nhận diện từ báo hiệu chuyển hướng (Signpost words) trong bài thi nghe:',
+              targetText: 'Whenever a speaker utters actually, the preceding information is usually a distractor.',
+              targetPhonetic: 'wenˈevər ə ˈspiːkər ˈʌtəz ˈæktʃuəli, ðə prɪˈsiːdɪŋ ˌɪnfəˈmeɪʃn ɪz ˈjuːʒʊəli ə dɪˈstræktə.',
+              vietnameseMeaning: 'Bất cứ khi nào người nói thốt ra từ actually, thông tin phía trước thường là bẫy đánh lạc hướng.',
+              audioText: 'Whenever a speaker utters actually, the preceding information is usually a distractor.',
+              speakingHints: [
+                'Từ chuyên môn "distractor": /dɪˈstræk.tər/ (yếu tố gây nhiễu)',
+                'Động từ "utters": /ˈʌt.ərz/ (thốt ra, nói ra)',
+                'Trọng âm từ "preceding": /prɪˈsiː.dɪŋ/'
+              ]
+            },
+            {
+              id: 'en-e-wrt-list',
+              type: 'writing_drill',
+              prompt: 'Viết câu lưu ý về việc kiểm tra quy tắc giới hạn từ trong bài nghe IELTS:',
+              vietnameseMeaning: 'Tình huống: Bạn ghi chú lưu ý trước khi làm bài thi Listening. Hãy viết câu cảnh báo luôn kiểm tra giới hạn từ cẩn thận để tránh mất điểm đáng tiếc.',
+              targetText: 'Always check the word limit instruction carefully to avoid losing unnecessary marks in listening.',
+              acceptableAnswers: [
+                'Always check the word limit instruction carefully to avoid losing unnecessary marks in listening.',
+                'Always read the word count instructions carefully to avoid unnecessary mistakes.',
+                'Make sure to check the word limit carefully to avoid losing marks.'
+              ],
+              requiredKeywords: ['check', 'limit', 'avoid'],
+              minWords: 6,
+              grammarFocus: 'Cấu trúc mệnh lệnh khuyên bảo: "Always [check / inspect] the word limit carefully to avoid [V-ing / losing marks]."',
+              explanation: 'Lỗi vượt quá số từ (Over word limit) là nguyên nhân hàng đầu khiến thí sinh mất điểm oan uổng trong phần thi IELTS Listening.'
             }
           ]
         },
@@ -1487,6 +1991,36 @@ export const englishCourse: LanguageCourse = {
               ],
               correctAnswer: 'I am currently out of the office with limited access to email.',
               explanation: '"Out of office (OOO)" là thông điệp tự động tiêu chuẩn của tất cả các hệ thống email công sở toàn cầu.'
+            },
+            {
+              id: 'en-e-spk-toeic',
+              type: 'speaking_drill',
+              prompt: 'Luyện nói câu chứa cấu trúc giả định thức thương mại TOEIC:',
+              targetText: 'The committee recommended that every manager submit their departmental budget by Friday.',
+              targetPhonetic: 'ðə kəˈmɪti ˌrekəˈmendɪd ðæt ˈevri ˈmænɪdʒə səbˈmɪt ðeə ˌdiːpɑːtˈmentl ˈbʌdʒɪt baɪ ˈfraɪdeɪ.',
+              vietnameseMeaning: 'Ủy ban khuyến nghị rằng mọi nhà quản lý phải nộp ngân sách phòng ban trước thứ Sáu.',
+              audioText: 'The committee recommended that every manager submit their departmental budget by Friday.',
+              speakingHints: [
+                'Động từ sau giả định thức: "submit" giữ nguyên thể, không chia thêm "s"',
+                'Trọng âm từ "committee": /kəˈmɪt.i/ (nhấn âm 2)',
+                'Ngữ điệu trang trọng, dứt khoát'
+              ]
+            },
+            {
+              id: 'en-e-wrt-toeic',
+              type: 'writing_drill',
+              prompt: 'Viết câu thông báo thương mại sử dụng cấu trúc giả định thức (Subjunctive mood):',
+              vietnameseMeaning: 'Tình huống: Bạn soạn thảo thông báo cho toàn công ty. Hãy viết câu quy định rằng ban giám đốc yêu cầu mọi nhân viên hoàn thành khóa đào tạo an ninh mạng trước hạn chót.',
+              targetText: 'Management requested that all employees complete the security training before the deadline.',
+              acceptableAnswers: [
+                'Management requested that all employees complete the security training before the deadline.',
+                'The director required that all staff complete the security training by Friday.',
+                'Management mandated that each employee complete the training on time.'
+              ],
+              requiredKeywords: ['requested', 'complete', 'deadline'],
+              minWords: 6,
+              grammarFocus: 'Cấu trúc giả định thức: "Management requested that all employees complete [V-bare] the training before the deadline."',
+              explanation: 'Động từ "complete" ở dạng nguyên thể không "s" là điểm ngữ pháp phân loại điểm cao nhất trong đề thi TOEIC.'
             }
           ]
         },
@@ -1524,6 +2058,37 @@ export const englishCourse: LanguageCourse = {
               options: ['have we witnessed', 'we have witnessed', 'we witnessed', 'we did witness'],
               correctAnswer: 'have we witnessed',
               explanation: 'Đứng đầu câu là "Rarely / Seldom / Scarcely" thì mệnh đề chính phải đảo trợ động từ lên trước chủ ngữ: "Rarely have we witnessed...".'
+            },
+            {
+              id: 'en-e-spk-inv',
+              type: 'speaking_drill',
+              prompt: 'Luyện nói câu đảo ngữ phủ định nhấn mạnh C1/C2:',
+              targetText: 'Under no circumstances should confidential credentials be shared with unauthorized parties.',
+              targetPhonetic: 'ˈʌndə nəʊ ˈsɜːkəmstənsɪz ʃʊd ˌkɒnfɪˈdenʃl krəˈdenʃlz biː ʃeəd wɪð ʌnˈɔːθəraɪzd ˈpɑːtiz.',
+              vietnameseMeaning: 'Trong bất kỳ hoàn cảnh nào, thông tin xác thực bảo mật cũng không được phép chia sẻ cho các bên không có thẩm quyền.',
+              audioText: 'Under no circumstances should confidential credentials be shared with unauthorized parties.',
+              speakingHints: [
+                'Cụm đảo ngữ "Under no circumstances should...": phát âm liền mạch',
+                'Từ "confidential": /ˌkɒn.fɪˈden.ʃəl/',
+                'Từ "unauthorized": /ʌnˈɔː.θər.aɪzd/',
+                'Ngữ điệu dứt khoát, mang tính mệnh lệnh pháp lý'
+              ]
+            },
+            {
+              id: 'en-e-wrt-inv',
+              type: 'writing_drill',
+              prompt: 'Viết câu tiếng Anh học thuật C1/C2 sử dụng cấu trúc đảo ngữ với "Not only" hoặc "Under no circumstances":',
+              vietnameseMeaning: 'Tình huống: Bạn viết bài luận phản biện chính sách. Hãy viết câu đảo ngữ nhấn mạnh: Không những chính sách này giúp cắt giảm chi phí mà nó còn thúc đẩy đổi mới sáng tạo.',
+              targetText: 'Not only does this strategic initiative reduce operating costs, but it also stimulates sustainable innovation.',
+              acceptableAnswers: [
+                'Not only does this strategic initiative reduce operating costs, but it also stimulates sustainable innovation.',
+                'Not only does this policy reduce operating costs, but it also fosters long-term innovation.',
+                'Not only does this solution reduce operational costs, but it also drives innovation.'
+              ],
+              requiredKeywords: ['Not only does', 'reduce', 'innovation'],
+              minWords: 6,
+              grammarFocus: 'Cấu trúc đảo ngữ C1/C2: "Not only + [does/did/can] + S + V, but it also + V..."',
+              explanation: 'Cấu trúc đảo ngữ kết hợp cặp từ "stimulates sustainable innovation" là đỉnh cao của văn phong học thuật Cambridge Band 8.5 - 9.0.'
             }
           ]
         }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   GraduationCap,
   Award,
@@ -58,14 +58,41 @@ import { IeltsWritingLab } from './ielts/IeltsWritingLab';
 import { IeltsSpeakingLab } from './ielts/IeltsSpeakingLab';
 import { IeltsVocabHub } from './ielts/IeltsVocabHub';
 import { IeltsBandCalculator } from './ielts/IeltsBandCalculator';
+import { OfficialRealExamSimulator } from './ielts/OfficialRealExamSimulator';
+import { IeltsMasteryPrepHub } from './ielts/IeltsMasteryPrepHub';
 import { ieltsTopicVocabularies } from '../data/courses/englishIeltsVocabData';
+import { LANGUAGE_COURSES } from '../data/curriculum';
+import {
+  MULTI_LANG_EXAM_METADATA,
+  getLanguagePureExamQuestions
+} from '../data/multiLangExamData';
+import {
+  buildFullSimulatorPaperFromTestSet
+} from '../utils/ieltsMasteryEngine';
+import {
+  MultiLangWritingLab,
+  MultiLangSpeakingLab,
+  MultiLangVocabHub,
+  MultiLangScoreCalculator
+} from './exam/MultiLangExamLabs';
+import { WritingChartViewer } from './exam/WritingChartViewer';
 
 interface AcademicExamViewProps {
   course: LanguageCourse;
+  selectedLanguageId?: string;
+  onSelectLanguage?: (langId: string) => void;
   onGainXp: (amount: number) => void;
+  onExamCompleted?: () => void;
 }
 
-export const AcademicExamView: React.FC<AcademicExamViewProps> = ({ course, onGainXp }) => {
+export const AcademicExamView: React.FC<AcademicExamViewProps> = ({
+  course,
+  selectedLanguageId,
+  onSelectLanguage,
+  onGainXp,
+  onExamCompleted
+}) => {
+  const [isOfficialFullExamOpen, setIsOfficialFullExamOpen] = useState(false);
   const [selectedExamIndex, setSelectedExamIndex] = useState(0);
   const [selectedTestSetIndex, setSelectedTestSetIndex] = useState(0);
   const [activeTab, setActiveTab] = useState<string>('all');
@@ -124,30 +151,72 @@ export const AcademicExamView: React.FC<AcademicExamViewProps> = ({ course, onGa
   const [mockCandidateScratchpad, setMockCandidateScratchpad] = useState<string>('');
   const [isScratchpadOpen, setIsScratchpadOpen] = useState<boolean>(false);
 
+  // Reset all exam states cleanly whenever course.id changes so languages never mix
+  useEffect(() => {
+    setIsOfficialFullExamOpen(false);
+    setSelectedExamIndex(0);
+    setSelectedTestSetIndex(0);
+    setActiveTab('all');
+    setSelectedAnswers({});
+    setSubmittedQuestions({});
+    setIsEngineActive(false);
+    setEnginePhase('config');
+    setMockSession(null);
+    setMockResult(null);
+    setCurrentQuestionIndex(0);
+    setSelectedWritingTaskIndex(0);
+    setSelectedSpeakingIndex(0);
+    setSelectedVideoIndex(0);
+  }, [course.id]);
+
   const activeExam: ExamInfo | undefined = course.examInfo[selectedExamIndex] || course.examInfo[0];
-  const availableTestSets: IeltsTestSet[] = activeExam?.testSets || [];
-  const currentTestSet: IeltsTestSet | undefined = availableTestSets[selectedTestSetIndex];
+  const isEnglishIelts = course.id === 'english' && Boolean(activeExam?.examName.includes('IELTS'));
+  const nonEnglishMeta = !isEnglishIelts ? MULTI_LANG_EXAM_METADATA[course.id] : undefined;
+  const examShortName = isEnglishIelts
+    ? (examModuleTrack === 'general-training' ? 'IELTS General Training' : 'IELTS Academic')
+    : (nonEnglishMeta?.examShortName || activeExam?.examName.split(' ')[0] || 'Chứng chỉ');
+  const examAuthority = isEnglishIelts
+    ? 'Cambridge, IDP & British Council'
+    : (nonEnglishMeta?.examAuthority || 'Hội đồng Khảo thí Quốc tế');
 
-  // Current questions pool for regular browsing
-  const currentQuestions: ExamQuestion[] = currentTestSet 
-    ? currentTestSet.questions 
-    : (activeExam?.sampleQuestions || []);
+  const availableTestSets: IeltsTestSet[] = isEnglishIelts
+    ? (activeExam?.testSets || [])
+    : (nonEnglishMeta?.testSets.map(ts => ({
+        ...ts,
+        questions: nonEnglishMeta.extraQuestions
+      })) || []);
+  const currentTestSet: IeltsTestSet | undefined = availableTestSets[selectedTestSetIndex] || availableTestSets[0];
 
-  const rawWritingPrompts: WritingModelPrompt[] = (currentTestSet?.writingPrompts && currentTestSet.writingPrompts.length > 0)
-    ? currentTestSet.writingPrompts
-    : (activeExam?.writingPrompts || []);
+  // Full 80-question test paper (40 Listening + 40 Reading) built for the active IELTS test set
+  const fullTestPaper = useMemo(
+    () => (isEnglishIelts ? buildFullSimulatorPaperFromTestSet(currentTestSet) : null),
+    [isEnglishIelts, currentTestSet]
+  );
+
+  // Current questions pool for regular browsing (100% isolated by language)
+  const currentQuestions: ExamQuestion[] = isEnglishIelts
+    ? (fullTestPaper ? [...fullTestPaper.listening40, ...fullTestPaper.reading40] : (activeExam?.sampleQuestions || []))
+    : getLanguagePureExamQuestions(course.id, activeExam?.sampleQuestions || []);
+
+  const rawWritingPrompts: WritingModelPrompt[] = isEnglishIelts
+    ? ((currentTestSet?.writingPrompts && currentTestSet.writingPrompts.length > 0)
+        ? currentTestSet.writingPrompts
+        : (activeExam?.writingPrompts || []))
+    : (nonEnglishMeta?.writingPrompts || activeExam?.writingPrompts || []);
 
   const writingPrompts: WritingModelPrompt[] = rawWritingPrompts.filter(wp => {
-    if (writingToneFilter === 'all') return true;
+    if (!isEnglishIelts || writingToneFilter === 'all') return true;
     if (writingToneFilter === 'Task 2') return wp.taskType === 'Task 2';
     return wp.letterTone === writingToneFilter;
   });
 
-  const speakingCards: SpeakingCueCard[] = (currentTestSet?.speakingCueCards && currentTestSet.speakingCueCards.length > 0)
-    ? currentTestSet.speakingCueCards
-    : (activeExam?.speakingCueCards || []);
+  const speakingCards: SpeakingCueCard[] = isEnglishIelts
+    ? ((currentTestSet?.speakingCueCards && currentTestSet.speakingCueCards.length > 0)
+        ? currentTestSet.speakingCueCards
+        : (activeExam?.speakingCueCards || []))
+    : (nonEnglishMeta?.speakingCueCards || activeExam?.speakingCueCards || []);
 
-  const availableVideoLessons: IeltsVideoLesson[] = activeExam?.videoLessons || [];
+  const availableVideoLessons: IeltsVideoLesson[] = isEnglishIelts ? (activeExam?.videoLessons || []) : [];
   const currentVideo: IeltsVideoLesson | undefined = availableVideoLessons[selectedVideoIndex];
 
   // COUNTDOWN TIMER EFFECT FOR RANDOMIZED MOCK EXAM
@@ -255,7 +324,10 @@ export const AcademicExamView: React.FC<AcademicExamViewProps> = ({ course, onGa
 
   // MOCK ENGINE CONTROLS
   const handleLaunchMockExam = () => {
-    const session = createMockExamSession(availableTestSets, activeExam.sampleQuestions, engineConfig);
+    const fallbackPool = isEnglishIelts ? activeExam.sampleQuestions : currentQuestions;
+    const session = createMockExamSession(availableTestSets, fallbackPool, engineConfig);
+    const prefix = isEnglishIelts ? 'IELTS' : examShortName.split(' ')[0].toUpperCase();
+    session.sessionId = `${prefix}-MOCK-${Date.now().toString().slice(-6)}`;
     setMockSession(session);
     setCurrentQuestionIndex(0);
     setRemainingSeconds(session.durationSeconds);
@@ -299,6 +371,9 @@ export const AcademicExamView: React.FC<AcademicExamViewProps> = ({ course, onGa
     // Reward XP based on performance
     const earnedXp = Math.max(60, result.correctCount * 15 + Math.round(result.overallBand * 10));
     onGainXp(earnedXp);
+    if (onExamCompleted) {
+      onExamCompleted();
+    }
   };
 
   const formatTimer = (seconds: number) => {
@@ -321,27 +396,82 @@ export const AcademicExamView: React.FC<AcademicExamViewProps> = ({ course, onGa
 
   return (
     <div className="space-y-6 pb-20">
+      {/* 7-LANGUAGE EXAM CENTER SWITCHER BAR (100% SEPARATED PER LANGUAGE) */}
+      <div className="bg-white rounded-2xl border border-slate-200/90 p-3.5 shadow-2xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2.5">
+          <div className="flex items-center gap-2 text-xs font-extrabold text-slate-800 uppercase tracking-wide">
+            <GraduationCap className="w-4 h-4 text-indigo-600" />
+            <span>Chọn Trung Tâm Khảo Thí Theo Ngôn Ngữ (7 Chứng Chỉ Quốc Tế Độc Lập):</span>
+          </div>
+          <span className="text-[11px] font-semibold text-indigo-600 bg-indigo-50 px-2.5 py-0.5 rounded-md border border-indigo-100 self-start sm:self-auto">
+            Đang ở phòng thi: {course.flagEmoji} {course.vietnameseName} ({examShortName})
+          </span>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
+          {Object.values(LANGUAGE_COURSES).map(langCourse => {
+            const isCurrent = langCourse.id === (selectedLanguageId || course.id);
+            const certLabel =
+              langCourse.id === 'english'
+                ? 'IELTS'
+                : MULTI_LANG_EXAM_METADATA[langCourse.id]?.examShortName ||
+                  langCourse.examInfo[0]?.examName.split(' ')[0] ||
+                  'Exam';
+            return (
+              <button
+                key={langCourse.id}
+                data-testid={`exam-lang-switch-${langCourse.id}`}
+                onClick={() => {
+                  if (onSelectLanguage) {
+                    onSelectLanguage(langCourse.id);
+                  }
+                }}
+                className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex items-center gap-2.5 ${
+                  isCurrent
+                    ? 'border-indigo-600 bg-indigo-50/90 text-indigo-950 shadow-2xs ring-2 ring-indigo-500/20'
+                    : 'border-slate-200 bg-slate-50/60 hover:bg-white hover:border-slate-300 text-slate-700'
+                }`}
+              >
+                <span className="text-xl shrink-0">{langCourse.flagEmoji}</span>
+                <div className="min-w-0">
+                  <div className="text-xs font-extrabold truncate">{langCourse.vietnameseName.replace(/\s*\(.*?\)/g, '')}</div>
+                  <div className={`text-[10px] font-mono font-bold truncate ${
+                    isCurrent ? 'text-indigo-700' : 'text-slate-500'
+                  }`}>
+                    {certLabel}
+                  </div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Header Banner */}
       <div className="bg-white rounded-2xl border border-slate-200/80 p-5 sm:p-6 shadow-xs">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
           <div>
-            <div className="flex items-center gap-2 text-xs font-semibold text-indigo-600">
+            <div className="flex items-center gap-2 text-xs font-semibold text-indigo-600 flex-wrap">
               <GraduationCap className="w-4 h-4" />
               <span>Trung Tâm Luyện Thi Chứng Chỉ Quốc Tế & Học Thuật</span>
               <span aria-hidden="true">·</span>
-              <span>{course.vietnameseName}</span>
+              <span className="font-bold">{course.flagEmoji} {course.vietnameseName}</span>
+              <span aria-hidden="true">·</span>
+              <span className="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded border border-indigo-200 font-semibold text-[11px]">
+                {examAuthority}
+              </span>
             </div>
-            <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 mt-1 tracking-tight">
-              {activeExam.examName.includes('IELTS') ? (
+            <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 mt-1.5 tracking-tight">
+              {isEnglishIelts ? (
                 examModuleTrack === 'general-training'
                   ? 'Luyện Thi IELTS General Training: Bản Chuẩn Định Cư & Việc Làm Quốc Tế'
                   : 'Luyện Thi IELTS Academic: Đề Thi Thật & Thi Thử Ngẫu Nhiên Chuẩn Quốc Tế'
               ) : (
-                `Luyện Thi Chứng Chỉ ${activeExam.examName}`
+                nonEnglishMeta?.examFullTitle || `Luyện Thi Chứng Chỉ ${activeExam.examName}`
               )}
             </h1>
             <p className="text-xs text-slate-500 mt-1 max-w-3xl leading-relaxed">
-              {activeExam.examName.includes('IELTS') ? (
+              {isEnglishIelts ? (
                 examModuleTrack === 'general-training'
                   ? 'Thiết kế bám sát chuẩn Cambridge & IDP cho định cư (Canada Express Entry, Úc PR/482, NZ) và môi trường làm việc: Đọc hiểu 3 Section (Đời sống - Công sở - Tạp chí), thang điểm Reading khắt khe (Band 7.0 = 34-35/40) và viết thư Task 1 với 3 phong cách (Formal, Semi-formal, Informal).'
                   : 'Trang bị ngân hàng đề thi Cambridge 19, 18 & British Council sát thực tế: 3 bài luận khoa học hàn lâm, mô tả biểu đồ Task 1, hệ thống tạo đề thi ngẫu nhiên bấm giờ (Mock Engine) và video bài giảng AI chuyên sâu.'
@@ -378,8 +508,8 @@ export const AcademicExamView: React.FC<AcademicExamViewProps> = ({ course, onGa
           )}
         </div>
 
-        {/* IELTS MODULE TRACK SWITCHER (ACADEMIC VS GENERAL TRAINING) */}
-        {activeExam.examName.includes('IELTS') && (
+        {/* IELTS MODULE TRACK SWITCHER (ONLY FOR ENGLISH IELTS ON QUESTION BANK) */}
+        {isEnglishIelts && !isEngineActive && (activeTab === 'all' || activeTab === 'listening' || activeTab === 'reading' || activeTab === 'writing' || activeTab === 'speaking') && (
           <div className="mt-4 p-3.5 bg-slate-50 rounded-2xl border border-slate-200/90 space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -465,7 +595,6 @@ export const AcademicExamView: React.FC<AcademicExamViewProps> = ({ course, onGa
               </button>
             </div>
 
-            {/* General Training Detailed Structure & Stricter Scoring Callout */}
             {examModuleTrack === 'general-training' && (
               <div className="mt-2 p-3 bg-emerald-50/70 rounded-xl border border-emerald-200/90 text-xs text-emerald-950 space-y-2">
                 <div className="flex items-center gap-1.5 font-bold text-emerald-900">
@@ -500,16 +629,18 @@ export const AcademicExamView: React.FC<AcademicExamViewProps> = ({ course, onGa
           </div>
         )}
 
-        {/* BỘ ĐỀ THI LỰA CHỌN (TEST SETS SELECTOR) */}
-        {availableTestSets.length > 0 && !isEngineActive && (
+        {/* BỘ ĐỀ THI LỰA CHỌN (TEST SETS SELECTOR - LANGUAGE SPECIFIC, SHOWN ON QUESTION BANK) */}
+        {availableTestSets.length > 0 && !isEngineActive && (activeTab === 'all' || activeTab === 'listening' || activeTab === 'reading' || activeTab === 'writing' || activeTab === 'speaking') && (
           <div className="mt-4 pt-3 border-t border-slate-100">
             <div className="flex items-center justify-between mb-2">
               <div className="text-xs font-bold text-slate-800 uppercase tracking-wide flex items-center gap-1.5">
                 <FileText className="w-3.5 h-3.5 text-indigo-600" />
                 <span>
-                  {examModuleTrack === 'general-training'
-                    ? 'Bộ Đề Thi IELTS General Training Chính Thức:'
-                    : 'Bộ Đề Thi Thật IELTS Academic (Cambridge & British Council Actual Tests):'}
+                  {isEnglishIelts
+                    ? (examModuleTrack === 'general-training'
+                        ? 'Bộ Đề Thi IELTS General Training Chính Thức:'
+                        : 'Bộ Đề Thi Thật IELTS Academic (Cambridge & British Council Actual Tests):')
+                    : `Bộ Đề Thi Chuẩn Quốc Tế ${examShortName} (${course.vietnameseName}):`}
                 </span>
               </div>
               <span className="text-[11px] text-slate-500 font-medium">
@@ -520,7 +651,7 @@ export const AcademicExamView: React.FC<AcademicExamViewProps> = ({ course, onGa
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
               {availableTestSets.map((testSet, idx) => {
                 const isSelected = selectedTestSetIndex === idx;
-                const isGtSet = testSet.module === 'general-training';
+                const isGtSet = isEnglishIelts && testSet.module === 'general-training';
                 return (
                   <button
                     key={testSet.id}
@@ -529,7 +660,7 @@ export const AcademicExamView: React.FC<AcademicExamViewProps> = ({ course, onGa
                       setSelectedAnswers({});
                       setSubmittedQuestions({});
                       setSelectedWritingTaskIndex(0);
-                      if (testSet.module) {
+                      if (isEnglishIelts && testSet.module) {
                         setExamModuleTrack(testSet.module);
                         setEngineConfig(prev => ({ ...prev, examModule: testSet.module || 'academic' }));
                       }
@@ -555,7 +686,7 @@ export const AcademicExamView: React.FC<AcademicExamViewProps> = ({ course, onGa
                           ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
                           : 'bg-indigo-50 text-indigo-700 border-indigo-200'
                       }`}>
-                        {isGtSet ? 'General Training' : 'Academic'}
+                        {isEnglishIelts ? (isGtSet ? 'General Training' : 'Academic') : testSet.edition}
                       </span>
                     </div>
 
@@ -566,10 +697,28 @@ export const AcademicExamView: React.FC<AcademicExamViewProps> = ({ course, onGa
                       {testSet.description}
                     </div>
 
-                    <div className="flex items-center gap-2 mt-2 pt-2 border-t border-slate-200/60 text-[10px] text-slate-600">
-                      <span className="font-semibold text-slate-700">{testSet.questions.length} câu</span>
-                      <span>·</span>
-                      <span className={`font-medium ${isGtSet ? 'text-emerald-700' : 'text-indigo-600'}`}>{testSet.targetBand}</span>
+                    <div className="flex items-center justify-between gap-1.5 mt-2.5 pt-2 border-t border-slate-200/60 text-[10px] text-slate-600">
+                      <div className="flex items-center gap-1 min-w-0 truncate">
+                        <span className="font-semibold text-slate-700 whitespace-nowrap">
+                          {isEnglishIelts ? '80 câu chuẩn (40L + 40R)' : `${testSet.questions.length} câu`}
+                        </span>
+                        <span>·</span>
+                        <span className={`font-medium truncate ${isGtSet ? 'text-emerald-700' : 'text-indigo-600'}`}>{testSet.targetBand}</span>
+                      </div>
+                      {isEnglishIelts && (
+                        <span
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedTestSetIndex(idx);
+                            setIsOfficialFullExamOpen(true);
+                          }}
+                          data-testid={`launch-cd-ielts-${testSet.code}`}
+                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-red-600 hover:bg-red-700 text-white font-bold text-[10px] shadow-2xs transition-colors whitespace-nowrap shrink-0"
+                        >
+                          <Monitor className="w-2.5 h-2.5 shrink-0" />
+                          <span>Thi Máy 80 Câu</span>
+                        </span>
+                      )}
                     </div>
                   </button>
                 );
@@ -578,10 +727,117 @@ export const AcademicExamView: React.FC<AcademicExamViewProps> = ({ course, onGa
           </div>
         )}
 
+        {/* HERO BANNER: ENGLISH IELTS 80-Q SIMULATOR VS NON-ENGLISH CERTIFICATE EXAM SIMULATOR (SHOWN ON QUESTION BANK) */}
+        {!isEngineActive && (activeTab === 'all' || activeTab === 'listening' || activeTab === 'reading' || activeTab === 'writing' || activeTab === 'speaking') && (
+          isEnglishIelts ? (
+            <div className="mt-4 p-4 rounded-2xl bg-gradient-to-r from-red-600 via-rose-600 to-indigo-900 text-white shadow-lg flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border border-red-400/40">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="bg-white text-red-700 font-black text-[10px] px-2 py-0.5 rounded uppercase tracking-wider font-mono">
+                    CAMBRIDGE & IDP REAL FORMAT
+                  </span>
+                  <span className="text-xs font-bold text-amber-300 flex items-center gap-1">
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>Chuẩn 100% Khung Đề Thi Thật Ngoài Đời</span>
+                  </span>
+                </div>
+                <h3 className="text-base font-black tracking-tight text-white">
+                  Hệ Thống Thi Thử Đầy Đủ 4 Kỹ Năng: 80 Câu Trắc Nghiệm / Điền Từ + 2 Task Viết + Giám Khảo Phỏng Vấn
+                </h3>
+                <p className="text-xs text-red-100 max-w-2xl leading-relaxed">
+                  Bao gồm: <strong>40 câu Listening</strong> (Section 1-4 có băng nghe) + <strong>40 câu Reading</strong> (Passage 1-3) = <strong>Tổng 80 câu</strong> có bảng chuyển câu 1-40, <strong>2 bài Writing Task 1 & 2</strong> có bộ đếm từ tự động, và <strong>3 phần Speaking phỏng vấn 1-1</strong> trực tiếp cùng Giám khảo bản ngữ.
+                </p>
+              </div>
+
+              <button
+                onClick={() => setIsOfficialFullExamOpen(true)}
+                className="shrink-0 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black px-5 py-3 rounded-xl text-xs flex items-center gap-2 shadow-md transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
+              >
+                <Trophy className="w-4 h-4 text-slate-950" />
+                <span>VÀO PHÒNG THI THẬT 80 CÂU & PHỎNG VẤN</span>
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          ) : (
+            <div className="mt-4 p-4 rounded-2xl bg-gradient-to-r from-indigo-900 via-slate-900 to-indigo-950 text-white shadow-lg flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border border-indigo-700/50">
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="bg-amber-400 text-slate-950 font-black text-[10px] px-2 py-0.5 rounded uppercase tracking-wider font-mono">
+                    {course.flagEmoji} {examShortName} OFFICIAL EXAM CENTER
+                  </span>
+                  <span className="text-xs font-bold text-amber-300 flex items-center gap-1">
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>{nonEnglishMeta?.scoreScaleLabel || activeExam.targetLevel}</span>
+                  </span>
+                </div>
+                <h3 className="text-base font-black tracking-tight text-white">
+                  Phòng Thi Thử Bấm Giờ & Luyện Đề 4 Kỹ Năng Chuẩn {examShortName} ({course.vietnameseName})
+                </h3>
+                <p className="text-xs text-indigo-100 max-w-2xl leading-relaxed">
+                  Ngân hàng đề thi riêng biệt 100% cho <strong>{course.vietnameseName} ({course.nativeName})</strong> theo chuẩn <strong>{examAuthority}</strong>: Nghe hiểu có băng âm thanh bản ngữ, Đọc hiểu & Ngữ pháp, Phòng luyện Viết và Phòng thi Nói độc lập.
+                </p>
+              </div>
+
+              <button
+                onClick={() => {
+                  setEngineConfig(prev => ({
+                    ...prev,
+                    skillMode: 'all-skills',
+                    questionCount: currentQuestions.length,
+                    durationMinutes: 25
+                  }));
+                  handleLaunchMockExam();
+                }}
+                className="shrink-0 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black px-5 py-3 rounded-xl text-xs flex items-center gap-2 shadow-md transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
+              >
+                <Trophy className="w-4 h-4 text-slate-950" />
+                <span>BẮT ĐẦU THI THỬ {examShortName.toUpperCase()} BẤM GIỜ</span>
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          )
+        )}
+
         {/* Navigation Tabs Bar */}
         <div className="mt-4 pt-4 border-t border-slate-100 space-y-3">
           <div className="flex items-center gap-2 flex-wrap text-xs">
-            {/* 1. RANDOMIZED MOCK EXAM ENGINE BUTTON */}
+            {/* 0. OFFICIAL 80-QUESTION FULL REAL EXAM BUTTON (ONLY FOR ENGLISH IELTS) */}
+            {isEnglishIelts && (
+              <>
+                <button
+                  onClick={() => setIsOfficialFullExamOpen(true)}
+                  data-testid="open-official-cd-ielts-btn"
+                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl font-black bg-gradient-to-r from-red-600 to-rose-700 text-white hover:from-red-700 hover:to-rose-800 transition-all cursor-pointer shadow-sm ring-2 ring-red-300"
+                >
+                  <Trophy className="w-3.5 h-3.5 text-amber-300" />
+                  <span>Thi Thử Chuẩn 80 Câu & Giám Khảo (100% Y Như Thi Thật)</span>
+                  <span className="text-[10px] bg-red-900/60 text-white px-1.5 py-0.2 rounded font-bold">
+                    80 CÂU + 2 WRITING + 3 SPEAKING
+                  </span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    setActiveTab('ielts-prep-hub');
+                    setIsEngineActive(false);
+                  }}
+                  data-testid="tab-ielts-prep-hub"
+                  className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl font-black transition-all cursor-pointer border shadow-xs ${
+                    activeTab === 'ielts-prep-hub' && !isEngineActive
+                      ? 'bg-gradient-to-r from-indigo-700 to-violet-700 text-white border-indigo-700 ring-2 ring-indigo-300'
+                      : 'bg-indigo-950 text-amber-300 border-indigo-800 hover:bg-indigo-900'
+                  }`}
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Ôn Luyện IELTS Chuyên Sâu (Paraphrase, Bẫy & Lộ Trình)</span>
+                  <span className="text-[10px] bg-amber-400 text-slate-950 px-1.5 py-0.2 rounded font-black uppercase">
+                    MỚI
+                  </span>
+                </button>
+              </>
+            )}
+
+            {/* 1. MOCK EXAM ENGINE BUTTON */}
             <button
               onClick={() => {
                 setIsEngineActive(true);
@@ -590,12 +846,12 @@ export const AcademicExamView: React.FC<AcademicExamViewProps> = ({ course, onGa
               className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl font-bold transition-all cursor-pointer shadow-xs ${
                 isEngineActive
                   ? 'bg-amber-600 text-white ring-2 ring-amber-300'
-                  : 'bg-linear-to-r from-amber-500 to-orange-600 text-white hover:from-amber-600 hover:to-orange-700'
+                  : 'bg-gradient-to-r from-amber-500 to-orange-600 text-white hover:from-amber-600 hover:to-orange-700'
               }`}
             >
-              <Shuffle className="w-3.5 h-3.5" />
-              <span>Thi Thử Ngẫu Nhiên (Mock Engine)</span>
-              <span className="text-[10px] uppercase tracking-wide bg-amber-900/40 px-1.5 py-0.2 rounded text-white ml-0.5 font-mono">
+              <Trophy className="w-3.5 h-3.5 text-amber-200" />
+              <span>Phòng Thi Máy ({examShortName} Mock Engine)</span>
+              <span className="text-[10px] uppercase tracking-wide bg-amber-900/40 px-1.5 py-0.2 rounded text-white ml-0.5 font-bold">
                 Bấm Giờ
               </span>
             </button>
@@ -613,7 +869,7 @@ export const AcademicExamView: React.FC<AcademicExamViewProps> = ({ course, onGa
               }`}
             >
               <BookOpen className="w-3.5 h-3.5" />
-              <span>Luyện Đề 4 Kỹ Năng ({currentQuestions.length} câu)</span>
+              <span>Ngân Hàng Câu Hỏi {examShortName} ({currentQuestions.length} câu)</span>
             </button>
 
             {/* 3. Interactive Writing Lab */}
@@ -629,26 +885,30 @@ export const AcademicExamView: React.FC<AcademicExamViewProps> = ({ course, onGa
               }`}
             >
               <PenTool className="w-3.5 h-3.5" />
-              <span>Phòng Luyện Viết (Writing Lab)</span>
+              <span>Phòng Luyện Viết ({examShortName} Writing)</span>
             </button>
 
-            {/* 4. Speaking Audio Lab */}
+            {/* 4. Speaking Lab */}
             <button
               onClick={() => {
                 setActiveTab('speaking-lab');
                 setIsEngineActive(false);
               }}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl font-bold transition-colors cursor-pointer border ${
+              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl font-bold transition-colors cursor-pointer border ${
                 (activeTab === 'speaking-lab' || activeTab === 'speaking-simulator') && !isEngineActive
-                  ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
-                  : 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border-emerald-200'
+                  ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white border-indigo-600 shadow-xs ring-2 ring-indigo-200'
+                  : 'bg-indigo-50 text-indigo-800 hover:bg-indigo-100 border-indigo-200'
               }`}
             >
-              <Mic className="w-3.5 h-3.5" />
-              <span>Phòng Thu Âm Nói (Speaking Lab)</span>
+              <Mic className="w-3.5 h-3.5 text-purple-600" />
+              <span>
+                {isEnglishIelts
+                  ? 'Phòng Thi Nói Có Giám Khảo (Live Examiner)'
+                  : `Phòng Luyện Nói (${examShortName} Speaking)`}
+              </span>
             </button>
 
-            {/* 5. Masterclass Video Tab */}
+            {/* 5. Masterclass Video Tab (Only if course has video lessons) */}
             {availableVideoLessons.length > 0 && (
               <button
                 onClick={() => {
@@ -679,10 +939,14 @@ export const AcademicExamView: React.FC<AcademicExamViewProps> = ({ course, onGa
               }`}
             >
               <Layers className="w-3.5 h-3.5" />
-              <span>Kho Từ Vựng C1/C2 ({ieltsTopicVocabularies.length})</span>
+              <span>
+                {isEnglishIelts
+                  ? `Kho Từ Vựng C1/C2 (${ieltsTopicVocabularies.length})`
+                  : `Từ Vựng Trọng Điểm ${examShortName} (${course.vocabCards.length})`}
+              </span>
             </button>
 
-            {/* 7. Band Calculator */}
+            {/* 7. Score / Band Calculator */}
             <button
               onClick={() => {
                 setActiveTab('band-calculator');
@@ -695,7 +959,7 @@ export const AcademicExamView: React.FC<AcademicExamViewProps> = ({ course, onGa
               }`}
             >
               <Calculator className="w-3.5 h-3.5" />
-              <span>Bảng Tính Điểm (Band Calculator)</span>
+              <span>Bảng Tính Điểm ({examShortName})</span>
             </button>
           </div>
 
@@ -703,7 +967,7 @@ export const AcademicExamView: React.FC<AcademicExamViewProps> = ({ course, onGa
           {!isEngineActive && (activeTab === 'all' || activeTab === 'listening' || activeTab === 'reading' || activeTab === 'writing' || activeTab === 'speaking') && (
             <div className="flex items-center justify-between flex-wrap gap-2 pt-2 border-t border-slate-100">
               <div className="flex items-center gap-1.5 flex-wrap text-xs">
-                <span className="text-[11px] font-bold text-slate-500 uppercase mr-1">Lọc kỹ năng:</span>
+                <span className="text-[11px] font-bold text-slate-500 uppercase mr-1">Lọc kỹ năng ({examShortName}):</span>
                 <button
                   onClick={() => setActiveTab('all')}
                   className={`px-2.5 py-1 rounded-lg font-medium transition-colors cursor-pointer ${
@@ -720,7 +984,7 @@ export const AcademicExamView: React.FC<AcademicExamViewProps> = ({ course, onGa
                     }`}
                   >
                     <Headphones className="w-3 h-3" />
-                    <span>Listening ({listeningCount})</span>
+                    <span>Nghe hiểu ({listeningCount})</span>
                   </button>
                 )}
                 {readingCount > 0 && (
@@ -731,7 +995,7 @@ export const AcademicExamView: React.FC<AcademicExamViewProps> = ({ course, onGa
                     }`}
                   >
                     <BookOpen className="w-3 h-3" />
-                    <span>Reading ({readingCount})</span>
+                    <span>Đọc & Ngữ pháp ({readingCount})</span>
                   </button>
                 )}
                 {writingCount > 0 && (
@@ -742,7 +1006,7 @@ export const AcademicExamView: React.FC<AcademicExamViewProps> = ({ course, onGa
                     }`}
                   >
                     <PenTool className="w-3 h-3" />
-                    <span>Writing Quiz ({writingCount})</span>
+                    <span>Viết ({writingCount})</span>
                   </button>
                 )}
                 {speakingCount > 0 && (
@@ -753,7 +1017,7 @@ export const AcademicExamView: React.FC<AcademicExamViewProps> = ({ course, onGa
                     }`}
                   >
                     <Mic className="w-3 h-3" />
-                    <span>Speaking Quiz ({speakingCount})</span>
+                    <span>Nói ({speakingCount})</span>
                   </button>
                 )}
               </div>
@@ -780,7 +1044,7 @@ export const AcademicExamView: React.FC<AcademicExamViewProps> = ({ course, onGa
                       ? 'bg-indigo-100 border-indigo-300 text-indigo-900 font-bold'
                       : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
                   }`}
-                  title="Chia đôi màn hình chuẩn thi máy IELTS on Computer"
+                  title="Chia đôi màn hình chuẩn thi máy tính"
                 >
                   <Monitor className="w-3.5 h-3.5 text-indigo-600" />
                   <span className="hidden sm:inline">Giao Diện Thi Máy (Split)</span>
@@ -806,10 +1070,12 @@ export const AcademicExamView: React.FC<AcademicExamViewProps> = ({ course, onGa
                   </div>
                   <div>
                     <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight">
-                      Cấu Hình Đề Thi Thử Ngẫu Nhiên (IELTS Mock Engine)
+                      Cấu Hình Đề Thi Thử Ngẫu Nhiên ({examShortName} Mock Engine · {course.vietnameseName})
                     </h2>
                     <p className="text-xs text-slate-500 mt-0.5">
-                      Thuật toán tạo đề thi tự động trích xuất ngẫu nhiên các câu hỏi từ kho Cambridge 19, 18 & British Council với tỷ lệ cân bằng chuẩn quốc tế.
+                      {isEnglishIelts
+                        ? 'Thuật toán tạo đề thi tự động trích xuất ngẫu nhiên các câu hỏi từ kho Cambridge 19, 18 & British Council với tỷ lệ cân bằng chuẩn quốc tế.'
+                        : `Thuật toán tạo đề thi tự động trích xuất câu hỏi từ ngân hàng đề chuẩn ${examAuthority} dành riêng cho ${course.vietnameseName}.`}
                     </p>
                   </div>
                 </div>
@@ -822,78 +1088,86 @@ export const AcademicExamView: React.FC<AcademicExamViewProps> = ({ course, onGa
                 </button>
               </div>
 
-              {/* Setting 1: Module Track (Academic vs General Training) */}
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-800 uppercase tracking-wide flex items-center gap-1.5">
-                  <Compass className="w-3.5 h-3.5 text-indigo-600" />
-                  <span>1. Chọn Phân Hệ Kỳ Thi (IELTS Track):</span>
-                </label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <button
-                    onClick={() => setEngineConfig({ ...engineConfig, examModule: 'academic', sourceSetId: 'all' })}
-                    className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer ${
-                      engineConfig.examModule === 'academic'
-                        ? 'border-indigo-600 bg-indigo-50/70 shadow-xs ring-1 ring-indigo-500'
-                        : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between text-xs font-bold text-slate-900">
-                      <span className="flex items-center gap-1.5">
-                        <GraduationCap className="w-4 h-4 text-indigo-600" />
-                        <span>IELTS Academic (Du Học & Học Thuật)</span>
-                      </span>
-                      {engineConfig.examModule === 'academic' && <Check className="w-4 h-4 text-indigo-600" />}
-                    </div>
-                    <div className="text-[11px] text-slate-500 mt-1 leading-relaxed">
-                      Bài đọc dài khoa học hàn lâm; thang điểm chuẩn (Band 7.0 = 30-31/40 câu đúng).
-                    </div>
-                  </button>
+              {/* Setting 1: Module Track (ONLY FOR ENGLISH IELTS) */}
+              {isEnglishIelts && (
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-slate-800 uppercase tracking-wide flex items-center gap-1.5">
+                    <Compass className="w-3.5 h-3.5 text-indigo-600" />
+                    <span>1. Chọn Phân Hệ Kỳ Thi (IELTS Track):</span>
+                  </label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <button
+                      onClick={() => setEngineConfig({ ...engineConfig, examModule: 'academic', sourceSetId: 'all' })}
+                      className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer ${
+                        engineConfig.examModule === 'academic'
+                          ? 'border-indigo-600 bg-indigo-50/70 shadow-xs ring-1 ring-indigo-500'
+                          : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between text-xs font-bold text-slate-900">
+                        <span className="flex items-center gap-1.5">
+                          <GraduationCap className="w-4 h-4 text-indigo-600" />
+                          <span>IELTS Academic (Du Học & Học Thuật)</span>
+                        </span>
+                        {engineConfig.examModule === 'academic' && <Check className="w-4 h-4 text-indigo-600" />}
+                      </div>
+                      <div className="text-[11px] text-slate-500 mt-1 leading-relaxed">
+                        Bài đọc dài khoa học hàn lâm; thang điểm chuẩn (Band 7.0 = 30-31/40 câu đúng).
+                      </div>
+                    </button>
 
-                  <button
-                    onClick={() => setEngineConfig({ ...engineConfig, examModule: 'general-training', sourceSetId: 'CAM-GT-19' })}
-                    className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer ${
-                      engineConfig.examModule === 'general-training'
-                        ? 'border-emerald-600 bg-emerald-50/70 shadow-xs ring-1 ring-emerald-500'
-                        : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between text-xs font-bold text-slate-900">
-                      <span className="flex items-center gap-1.5">
-                        <Briefcase className="w-4 h-4 text-emerald-600" />
-                        <span>IELTS General Training (Định Cư & Việc Làm)</span>
-                      </span>
-                      {engineConfig.examModule === 'general-training' && <Check className="w-4 h-4 text-emerald-600" />}
-                    </div>
-                    <div className="text-[11px] text-slate-500 mt-1 leading-relaxed">
-                      Đọc hiểu 3 Section (Đời sống - Công sở - Tạp chí); thang điểm khắt khe (Band 7.0 = 34-35/40 câu đúng).
-                    </div>
-                  </button>
-                </div>
-
-                {engineConfig.examModule === 'general-training' && (
-                  <div className="p-3 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-900 flex items-start gap-2">
-                    <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-                    <span>
-                      <strong>Quy chuẩn chấm điểm GT:</strong> Hệ thống Mock Engine sẽ tự động áp dụng bảng quy đổi điểm khắt khe cho Reading General Training (Band 7.0 yêu cầu đạt tối thiểu 74% ~ 34-35/40 câu đúng).
-                    </span>
+                    <button
+                      onClick={() => setEngineConfig({ ...engineConfig, examModule: 'general-training', sourceSetId: 'CAM-GT-19' })}
+                      className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer ${
+                        engineConfig.examModule === 'general-training'
+                          ? 'border-emerald-600 bg-emerald-50/70 shadow-xs ring-1 ring-emerald-500'
+                          : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between text-xs font-bold text-slate-900">
+                        <span className="flex items-center gap-1.5">
+                          <Briefcase className="w-4 h-4 text-emerald-600" />
+                          <span>IELTS General Training (Định Cư & Việc Làm)</span>
+                        </span>
+                        {engineConfig.examModule === 'general-training' && <Check className="w-4 h-4 text-emerald-600" />}
+                      </div>
+                      <div className="text-[11px] text-slate-500 mt-1 leading-relaxed">
+                        Đọc hiểu 3 Section (Đời sống - Công sở - Tạp chí); thang điểm khắt khe (Band 7.0 = 34-35/40 câu đúng).
+                      </div>
+                    </button>
                   </div>
-                )}
-              </div>
+
+                  {engineConfig.examModule === 'general-training' && (
+                    <div className="p-3 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-900 flex items-start gap-2">
+                      <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                      <span>
+                        <strong>Quy chuẩn chấm điểm GT:</strong> Hệ thống Mock Engine sẽ tự động áp dụng bảng quy đổi điểm khắt khe cho Reading General Training (Band 7.0 yêu cầu đạt tối thiểu 74% ~ 34-35/40 câu đúng).
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Setting 2: Skill Mode */}
               <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-800 uppercase tracking-wide flex items-center gap-1.5">
                   <Settings2 className="w-3.5 h-3.5 text-indigo-600" />
-                  <span>2. Chọn Chế Độ Kỹ Năng Thi:</span>
+                  <span>Chọn Chế Độ Kỹ Năng Thi ({examShortName}):</span>
                 </label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {[
+                  {(isEnglishIelts ? [
                     { id: 'all-skills', label: '4 Kỹ Năng Toàn Diện (Listening, Reading, Writing, Speaking)', badge: 'Khuyên Dùng Chuẩn Thi Thật', count: 16 },
                     { id: 'listening', label: 'Chuyên Sâu Listening (Nghe & Điền Bẫy)', badge: 'Section 1 - 4', count: 12 },
                     { id: 'reading', label: engineConfig.examModule === 'general-training' ? 'Chuyên Sâu GT Reading (3 Section Đời Sống & Công Sở)' : 'Chuyên Sâu Reading Academic (Passage 1 - 3)', badge: engineConfig.examModule === 'general-training' ? 'Section 1-3 GT' : 'Passage 1 - 3', count: 12 },
                     { id: 'writing', label: engineConfig.examModule === 'general-training' ? 'Chuyên Sâu GT Writing (Viết Thư & Xã Hội)' : 'Chuyên Sâu Writing Quiz (Task 1 & Task 2)', badge: 'Ngữ Pháp C1/C2', count: 10 },
                     { id: 'speaking', label: 'Chuyên Sâu Speaking (Part 1 - 3 A.R.E.A)', badge: 'Phản Xạ Nói', count: 8 }
-                  ].map(mode => {
+                  ] : [
+                    { id: 'all-skills', label: `Đề Thi Tổng Hợp 4 Kỹ Năng Chuẩn ${examShortName}`, badge: 'Đầy Đủ 4 Kỹ Năng', count: currentQuestions.length },
+                    { id: 'listening', label: `Chuyên Sâu Nghe Hiểu (${examShortName} Listening)`, badge: 'Băng Nghe Bản Ngữ', count: Math.max(1, listeningCount) },
+                    { id: 'reading', label: `Chuyên Sâu Đọc Hiểu & Ngữ Pháp (${examShortName} Reading)`, badge: 'Đọc & Từ Vựng', count: Math.max(1, readingCount) },
+                    { id: 'writing', label: `Chuyên Sâu Kỹ Năng Viết (${examShortName} Writing)`, badge: 'Cấu Trúc Viết', count: Math.max(1, writingCount) },
+                    { id: 'speaking', label: `Chuyên Sâu Phản Xạ Nói (${examShortName} Speaking)`, badge: 'Phản Xạ Khảo Thí', count: Math.max(1, speakingCount) }
+                  ]).map(mode => {
                     const isSelected = engineConfig.skillMode === mode.id;
                     return (
                       <button
@@ -924,13 +1198,15 @@ export const AcademicExamView: React.FC<AcademicExamViewProps> = ({ course, onGa
               <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-800 uppercase tracking-wide flex items-center gap-1.5">
                   <Clock className="w-3.5 h-3.5 text-amber-600" />
-                  <span>3. Chọn Thời Gian Làm Bài Bấm Giờ:</span>
+                  <span>Chọn Thời Gian Làm Bài Bấm Giờ:</span>
                 </label>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                   {[
-                    { minutes: 15, label: '15 Phút (Express Mock)', desc: 'Kiểm tra phản xạ nhanh dưới áp lực tốc độ cao' },
-                    { minutes: 25, label: '25 Phút (Standard Simulation)', desc: 'Thời lượng chuẩn mô phỏng kỳ thi thực tế' },
-                    { minutes: 40, label: '40 Phút (Intensive Challenge)', desc: 'Rèn luyện sức bền tư duy học thuật tối đa' }
+                    { minutes: 165, label: '165 Phút (Full 4 Kỹ Năng Y Như Thi Thật)', desc: 'Thời lượng mô phỏng toàn diện 4 kỹ năng chuẩn quốc tế' },
+                    { minutes: 60, label: '60 Phút (1 Section Chuẩn Thực Tế)', desc: 'Thời lượng trọn vẹn của 1 phần thi chính thức' },
+                    { minutes: 40, label: '40 Phút (Intensive Simulation)', desc: 'Rèn luyện sức bền tư duy học thuật cường độ cao' },
+                    { minutes: 25, label: '25 Phút (Standard Simulation)', desc: 'Thời lượng chuẩn mô phỏng kỳ thi thử rút gọn' },
+                    { minutes: 15, label: '15 Phút (Express Speed Drill)', desc: 'Kiểm tra phản xạ nhanh dưới áp lực tốc độ cao' }
                   ].map(item => {
                     const isSelected = engineConfig.durationMinutes === item.minutes;
                     return (
@@ -960,35 +1236,63 @@ export const AcademicExamView: React.FC<AcademicExamViewProps> = ({ course, onGa
               <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-800 uppercase tracking-wide flex items-center gap-1.5">
                   <BookOpen className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>4. Nguồn Ngân Hàng Đề Thi:</span>
+                  <span>Nguồn Ngân Hàng Đề Thi ({examShortName}):</span>
                 </label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {engineConfig.examModule === 'general-training' ? (
-                    <>
-                      <button
-                        onClick={() => setEngineConfig({ ...engineConfig, sourceSetId: 'CAM-GT-19' })}
-                        className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
-                          engineConfig.sourceSetId === 'CAM-GT-19'
-                            ? 'border-emerald-600 bg-emerald-50/70 shadow-xs ring-1 ring-emerald-500'
-                            : 'border-slate-200 bg-white hover:border-slate-300'
-                        }`}
-                      >
-                        <div className="text-xs font-bold text-slate-900">Cambridge IELTS 19 General Training Test 1</div>
-                        <div className="text-[11px] text-slate-500 mt-0.5">Đề thi chuẩn định cư & việc làm mới nhất 2024 - 2025.</div>
-                      </button>
+                  {isEnglishIelts ? (
+                    engineConfig.examModule === 'general-training' ? (
+                      <>
+                        <button
+                          onClick={() => setEngineConfig({ ...engineConfig, sourceSetId: 'CAM-GT-19' })}
+                          className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                            engineConfig.sourceSetId === 'CAM-GT-19'
+                              ? 'border-emerald-600 bg-emerald-50/70 shadow-xs ring-1 ring-emerald-500'
+                              : 'border-slate-200 bg-white hover:border-slate-300'
+                          }`}
+                        >
+                          <div className="text-xs font-bold text-slate-900">Cambridge IELTS 19 General Training Test 1</div>
+                          <div className="text-[11px] text-slate-500 mt-0.5">Đề thi chuẩn định cư & việc làm mới nhất 2024 - 2025.</div>
+                        </button>
 
-                      <button
-                        onClick={() => setEngineConfig({ ...engineConfig, sourceSetId: 'all' })}
-                        className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
-                          engineConfig.sourceSetId === 'all'
-                            ? 'border-emerald-600 bg-emerald-50/70 shadow-xs ring-1 ring-emerald-500'
-                            : 'border-slate-200 bg-white hover:border-slate-300'
-                        }`}
-                      >
-                        <div className="text-xs font-bold text-slate-900">Trộn tất cả câu hỏi General Training</div>
-                        <div className="text-[11px] text-slate-500 mt-0.5">Xáo trộn câu hỏi từ kho đời sống, nội quy công sở và bài báo tổng quát.</div>
-                      </button>
-                    </>
+                        <button
+                          onClick={() => setEngineConfig({ ...engineConfig, sourceSetId: 'all' })}
+                          className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                            engineConfig.sourceSetId === 'all'
+                              ? 'border-emerald-600 bg-emerald-50/70 shadow-xs ring-1 ring-emerald-500'
+                              : 'border-slate-200 bg-white hover:border-slate-300'
+                          }`}
+                        >
+                          <div className="text-xs font-bold text-slate-900">Trộn tất cả câu hỏi General Training</div>
+                          <div className="text-[11px] text-slate-500 mt-0.5">Xáo trộn câu hỏi từ kho đời sống, nội quy công sở và bài báo tổng quát.</div>
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          onClick={() => setEngineConfig({ ...engineConfig, sourceSetId: 'all' })}
+                          className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                            engineConfig.sourceSetId === 'all'
+                              ? 'border-emerald-600 bg-emerald-50/70 shadow-xs ring-1 ring-emerald-500'
+                              : 'border-slate-200 bg-white hover:border-slate-300'
+                          }`}
+                        >
+                          <div className="text-xs font-bold text-slate-900">Trộn ngẫu nhiên tất cả bộ đề Academic</div>
+                          <div className="text-[11px] text-slate-500 mt-0.5">Tổng hợp hơn 40 câu hỏi từ Cambridge 19, 18 và British Council Forecast.</div>
+                        </button>
+
+                        <button
+                          onClick={() => setEngineConfig({ ...engineConfig, sourceSetId: 'CAM-19' })}
+                          className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                            engineConfig.sourceSetId === 'CAM-19'
+                              ? 'border-emerald-600 bg-emerald-50/70 shadow-xs ring-1 ring-emerald-500'
+                              : 'border-slate-200 bg-white hover:border-slate-300'
+                          }`}
+                        >
+                          <div className="text-xs font-bold text-slate-900">Ưu tiên đề thi Cambridge 19 Academic</div>
+                          <div className="text-[11px] text-slate-500 mt-0.5">Trích xuất câu hỏi chuẩn bản mới nhất theo Cambridge Assessment.</div>
+                        </button>
+                      </>
+                    )
                   ) : (
                     <>
                       <button
@@ -999,21 +1303,27 @@ export const AcademicExamView: React.FC<AcademicExamViewProps> = ({ course, onGa
                             : 'border-slate-200 bg-white hover:border-slate-300'
                         }`}
                       >
-                        <div className="text-xs font-bold text-slate-900">Trộn ngẫu nhiên tất cả bộ đề Academic</div>
-                        <div className="text-[11px] text-slate-500 mt-0.5">Tổng hợp hơn 40 câu hỏi từ Cambridge 19, 18 và British Council Forecast.</div>
+                        <div className="text-xs font-bold text-slate-900">
+                          Trộn ngẫu nhiên toàn bộ ngân hàng đề {examShortName} ({course.vietnameseName})
+                        </div>
+                        <div className="text-[11px] text-slate-500 mt-0.5">
+                          Tổng hợp câu hỏi chuẩn khảo thí của {examAuthority}.
+                        </div>
                       </button>
 
-                      <button
-                        onClick={() => setEngineConfig({ ...engineConfig, sourceSetId: 'CAM-19' })}
-                        className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
-                          engineConfig.sourceSetId === 'CAM-19'
-                            ? 'border-emerald-600 bg-emerald-50/70 shadow-xs ring-1 ring-emerald-500'
-                            : 'border-slate-200 bg-white hover:border-slate-300'
-                        }`}
-                      >
-                        <div className="text-xs font-bold text-slate-900">Ưu tiên đề thi Cambridge 19 Academic</div>
-                        <div className="text-[11px] text-slate-500 mt-0.5">Trích xuất câu hỏi chuẩn bản mới nhất theo Cambridge Assessment.</div>
-                      </button>
+                      {availableTestSets[0] && (
+                        <button
+                          onClick={() => setEngineConfig({ ...engineConfig, sourceSetId: availableTestSets[0].code })}
+                          className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                            engineConfig.sourceSetId === availableTestSets[0].code
+                              ? 'border-emerald-600 bg-emerald-50/70 shadow-xs ring-1 ring-emerald-500'
+                              : 'border-slate-200 bg-white hover:border-slate-300'
+                          }`}
+                        >
+                          <div className="text-xs font-bold text-slate-900">{availableTestSets[0].title}</div>
+                          <div className="text-[11px] text-slate-500 mt-0.5">{availableTestSets[0].description}</div>
+                        </button>
+                      )}
                     </>
                   )}
                 </div>
@@ -1023,7 +1333,7 @@ export const AcademicExamView: React.FC<AcademicExamViewProps> = ({ course, onGa
               <div className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="text-xs text-slate-600 flex items-center gap-2">
                   <ShieldAlert className="w-4 h-4 text-indigo-600 shrink-0" />
-                  <span>Đề thi được xáo trộn ngẫu nhiên. Khi hết giờ, bài thi sẽ tự động khóa và chấm điểm.</span>
+                  <span>Đề thi {examShortName} được xáo trộn ngẫu nhiên. Khi hết giờ, bài thi sẽ tự động khóa và chấm điểm.</span>
                 </div>
 
                 <button
@@ -1031,13 +1341,13 @@ export const AcademicExamView: React.FC<AcademicExamViewProps> = ({ course, onGa
                   className="px-6 py-3 bg-linear-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white rounded-xl font-bold text-sm shadow-md transition-all cursor-pointer flex items-center justify-center gap-2 shrink-0"
                 >
                   <Play className="w-4 h-4 fill-white" />
-                  <span>Tạo Đề Ngẫu Nhiên & Bắt Đầu Thi</span>
+                  <span>Tạo Đề {examShortName} & Bắt Đầu Thi</span>
                 </button>
               </div>
             </div>
           )}
 
-          {/* PHASE 2: IN-EXAM ACTIVE SIMULATION (IELTS ON COMPUTER) */}
+          {/* PHASE 2: IN-EXAM ACTIVE SIMULATION */}
           {enginePhase === 'in-exam' && mockSession && (
             <div className="space-y-4">
               {/* Sticky Top Exam HUD */}
@@ -1056,15 +1366,17 @@ export const AcademicExamView: React.FC<AcademicExamViewProps> = ({ course, onGa
                           {mockSession.sessionId}
                         </span>
                         <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${
-                          mockSession.config.examModule === 'general-training'
+                          isEnglishIelts && mockSession.config.examModule === 'general-training'
                             ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
                             : 'bg-indigo-50 text-indigo-700 border-indigo-200'
                         }`}>
-                          {mockSession.config.examModule === 'general-training' ? 'IELTS General Training' : 'IELTS Academic'}
+                          {isEnglishIelts
+                            ? (mockSession.config.examModule === 'general-training' ? 'IELTS General Training' : 'IELTS Academic')
+                            : `${course.flagEmoji} ${examShortName}`}
                         </span>
                       </div>
                       <div className="text-[11px] text-slate-500 mt-0.5">
-                        Phòng thi máy IELTS on Computer · Câu {currentQuestionIndex + 1}/{mockSession.questions.length}
+                        Phòng thi máy {examShortName} ({course.vietnameseName}) · Câu {currentQuestionIndex + 1}/{mockSession.questions.length}
                       </div>
                     </div>
                   </div>
@@ -1171,7 +1483,7 @@ export const AcademicExamView: React.FC<AcademicExamViewProps> = ({ course, onGa
                     <div className="flex items-center justify-between text-xs font-bold text-amber-900">
                       <span className="flex items-center gap-1.5">
                         <FileText className="w-3.5 h-3.5 text-amber-700" />
-                        <span>Sổ Nháp Điện Tử Thí Sinh (IELTS Candidate Scratchpad)</span>
+                        <span>Sổ Nháp Điện Tử Thí Sinh ({examShortName} Candidate Scratchpad)</span>
                       </span>
                       <button
                         onClick={() => setMockCandidateScratchpad('')}
@@ -1197,7 +1509,7 @@ export const AcademicExamView: React.FC<AcademicExamViewProps> = ({ course, onGa
                   <Pause className="w-12 h-12 text-amber-400 mx-auto animate-bounce" />
                   <h3 className="text-lg font-bold">Bài thi đang được tạm dừng</h3>
                   <p className="text-xs text-slate-300 max-w-md mx-auto">
-                    Màn hình bài thi được làm mờ để đảm bảo tính công bằng của kỳ thi IELTS on Computer. Bấm "Tiếp tục" để mở khóa bài làm.
+                    Màn hình bài thi được làm mờ để đảm bảo tính công bằng của kỳ thi {examShortName}. Bấm "Tiếp tục" để mở khóa bài làm.
                   </p>
                   <button
                     onClick={() => setIsExamPaused(false)}
@@ -1255,8 +1567,8 @@ export const AcademicExamView: React.FC<AcademicExamViewProps> = ({ course, onGa
                     </div>
 
                     <div className="text-[11px] text-slate-400 pt-3 border-t border-slate-100 flex items-center justify-between">
-                      <span>Kỳ thi chính thức IELTS on Computer</span>
-                      <span>Cambridge English Standards</span>
+                      <span>Kỳ thi chuẩn quốc tế {examShortName}</span>
+                      <span>{examAuthority}</span>
                     </div>
                   </div>
 
@@ -1460,17 +1772,19 @@ export const AcademicExamView: React.FC<AcademicExamViewProps> = ({ course, onGa
                   <div className="space-y-1.5">
                     <div className="flex items-center gap-2 text-xs font-bold text-amber-400 uppercase tracking-widest flex-wrap">
                       <Trophy className="w-4 h-4 text-amber-400" />
-                      <span>Official IELTS Mock Test Report Form (TRF)</span>
+                      <span>Official {examShortName} Mock Test Report ({course.vietnameseName})</span>
                       <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
-                        mockSession.config.examModule === 'general-training'
+                        isEnglishIelts && mockSession.config.examModule === 'general-training'
                           ? 'bg-emerald-500/30 text-emerald-300 border-emerald-400/50'
                           : 'bg-indigo-500/30 text-indigo-300 border-indigo-400/50'
                       }`}>
-                        {mockSession.config.examModule === 'general-training' ? 'Phân hệ: IELTS General Training' : 'Phân hệ: IELTS Academic'}
+                        {isEnglishIelts
+                          ? (mockSession.config.examModule === 'general-training' ? 'Phân hệ: IELTS General Training' : 'Phân hệ: IELTS Academic')
+                          : `Chứng chỉ: ${examShortName}`}
                       </span>
                     </div>
                     <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
-                      Bảng Điểm Đánh Giá Năng Lực Quốc Tế
+                      Bảng Điểm Đánh Giá Năng Lực Quốc Tế ({course.vietnameseName})
                     </h2>
                     <div className="text-xs text-indigo-200 flex items-center gap-3 pt-1">
                       <span>Thí sinh: <strong className="text-white">{mockSession.candidateNumber}</strong></span>
@@ -1479,13 +1793,13 @@ export const AcademicExamView: React.FC<AcademicExamViewProps> = ({ course, onGa
                     </div>
                   </div>
 
-                  {/* Overall Band Score Stamp */}
+                  {/* Overall Score Stamp */}
                   <div className="bg-white/10 backdrop-blur-md px-6 py-4 rounded-2xl border border-white/20 text-center shrink-0">
                     <div className="text-[11px] font-bold text-indigo-300 uppercase tracking-wider">
-                      Overall IELTS Band
+                      {isEnglishIelts ? 'Overall IELTS Band' : `Kết Quả (${examShortName})`}
                     </div>
                     <div className="text-4xl sm:text-5xl font-black text-amber-400 mt-0.5 tracking-tight">
-                      {mockResult.overallBand.toFixed(1)}
+                      {isEnglishIelts ? mockResult.overallBand.toFixed(1) : `${mockResult.accuracyPercentage}%`}
                     </div>
                     <div className="text-xs font-bold text-white mt-1 bg-amber-500/20 px-2.5 py-0.5 rounded-full border border-amber-400/40">
                       CEFR: {mockResult.cefrLevel}
@@ -1499,7 +1813,7 @@ export const AcademicExamView: React.FC<AcademicExamViewProps> = ({ course, onGa
                     <div key={idx} className="bg-white/5 backdrop-blur-xs p-3.5 rounded-xl border border-white/10">
                       <div className="text-[11px] text-indigo-200 uppercase font-medium">{sk.skill}</div>
                       <div className="text-xl font-black text-white mt-0.5">
-                        Band {sk.estimatedBand.toFixed(1)}
+                        {isEnglishIelts ? `Band ${sk.estimatedBand.toFixed(1)}` : `${sk.percentage}%`}
                       </div>
                       <div className="text-[11px] text-indigo-300 mt-1">
                         {sk.correct}/{sk.total} đúng ({sk.percentage}%)
@@ -1508,7 +1822,7 @@ export const AcademicExamView: React.FC<AcademicExamViewProps> = ({ course, onGa
                   ))}
                 </div>
 
-                {mockSession.config.examModule === 'general-training' && (
+                {isEnglishIelts && mockSession.config.examModule === 'general-training' && (
                   <div className="mt-4 p-3 bg-emerald-950/40 rounded-xl border border-emerald-500/30 text-xs text-emerald-200 flex items-center gap-2">
                     <ShieldAlert className="w-4 h-4 text-emerald-400 shrink-0" />
                     <span>Lưu ý khảo thí GT: Điểm số kỹ năng Reading đã được tính toán theo thang điểm quy đổi khắt khe chuẩn IELTS General Training của Cambridge & IDP (Band 7.0 cần 34-35/40 câu đúng).</span>
@@ -1519,7 +1833,7 @@ export const AcademicExamView: React.FC<AcademicExamViewProps> = ({ course, onGa
                 <div className="mt-6 p-4 bg-white/5 rounded-2xl border border-white/10 space-y-2">
                   <div className="text-xs font-bold text-amber-300 flex items-center gap-1.5 uppercase tracking-wide">
                     <Award className="w-4 h-4 text-amber-400" />
-                    <span>Nhận xét tổng quát từ Hội đồng khảo thí:</span>
+                    <span>Nhận xét tổng quát từ Hội đồng khảo thí ({examAuthority}):</span>
                   </div>
                   <p className="text-xs sm:text-sm text-indigo-100 leading-relaxed font-sans">
                     "{mockResult.examinerVerdict}"
@@ -1582,7 +1896,7 @@ export const AcademicExamView: React.FC<AcademicExamViewProps> = ({ course, onGa
               {/* Detailed Question Review List */}
               <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-xs divide-y divide-slate-100 space-y-6">
                 <h3 className="text-sm font-bold text-slate-900 pb-2">
-                  Phân Tích Chi Tiết Từng Câu Hỏi & Bẫy Đề Thi Cambridge
+                  Phân Tích Chi Tiết Từng Câu Hỏi & Bẫy Đề Thi {examShortName}
                 </h3>
 
                 {mockSession.questions.map((q, idx) => {
@@ -1646,7 +1960,7 @@ export const AcademicExamView: React.FC<AcademicExamViewProps> = ({ course, onGa
                         </div>
 
                         <div className="p-2.5 rounded-lg border bg-emerald-50/50 border-emerald-200">
-                          <div className="text-[10px] text-emerald-800 uppercase font-semibold">Đáp án chuẩn Cambridge:</div>
+                          <div className="text-[10px] text-emerald-800 uppercase font-semibold">Đáp án chuẩn {examShortName}:</div>
                           <div className="font-bold text-emerald-950 mt-0.5">
                             {q.correctAnswer}
                           </div>
@@ -1658,7 +1972,7 @@ export const AcademicExamView: React.FC<AcademicExamViewProps> = ({ course, onGa
                         <div className="p-3 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-950 space-y-1">
                           <div className="font-bold text-amber-800 flex items-center gap-1.5">
                             <ShieldAlert className="w-3.5 h-3.5 text-amber-600" />
-                            <span>Bẫy đề thi Cambridge (Trap Analysis):</span>
+                            <span>Bẫy đề thi {examShortName} (Trap Analysis):</span>
                           </div>
                           <p className="leading-relaxed">{q.trapAnalysis}</p>
                         </div>
@@ -2043,37 +2357,82 @@ export const AcademicExamView: React.FC<AcademicExamViewProps> = ({ course, onGa
             </div>
           )}
 
-          {/* VIEW: INTERACTIVE WRITING LAB */}
+          {/* VIEW: IELTS MASTERY PREP HUB (PARAPHRASE ARENA, TFNG LAB, SENTENCE UPGRADER & ROADMAP) */}
+          {activeTab === 'ielts-prep-hub' && isEnglishIelts && (
+            <IeltsMasteryPrepHub
+              onGainXp={onGainXp}
+              onOpenFullSimulator={() => setIsOfficialFullExamOpen(true)}
+              onNavigateSubTab={(subTab) => {
+                setActiveTab(subTab);
+                setIsEngineActive(false);
+              }}
+            />
+          )}
+
+          {/* VIEW: INTERACTIVE WRITING LAB (LANGUAGE ISOLATED) */}
           {(activeTab === 'writing-lab' || activeTab === 'writing-models') && (
-            <IeltsWritingLab
-              prompts={writingPrompts}
-              examModuleTrack={examModuleTrack}
-              onGainXp={onGainXp}
-            />
+            isEnglishIelts ? (
+              <IeltsWritingLab
+                prompts={writingPrompts}
+                examModuleTrack={examModuleTrack}
+                onGainXp={onGainXp}
+              />
+            ) : nonEnglishMeta ? (
+              <MultiLangWritingLab
+                course={course}
+                meta={nonEnglishMeta}
+                prompts={writingPrompts}
+                onGainXp={onGainXp}
+              />
+            ) : null
           )}
 
-          {/* VIEW: SPEAKING AUDIO LAB */}
+          {/* VIEW: SPEAKING AUDIO LAB (LANGUAGE ISOLATED) */}
           {(activeTab === 'speaking-lab' || activeTab === 'speaking-simulator') && (
-            <IeltsSpeakingLab
-              cueCards={speakingCards}
-              voiceLangCode={course.voiceLangCode}
-              onGainXp={onGainXp}
-            />
+            isEnglishIelts ? (
+              <IeltsSpeakingLab
+                cueCards={speakingCards}
+                voiceLangCode={course.voiceLangCode}
+                onGainXp={onGainXp}
+              />
+            ) : nonEnglishMeta ? (
+              <MultiLangSpeakingLab
+                course={course}
+                meta={nonEnglishMeta}
+                cueCards={speakingCards}
+                onGainXp={onGainXp}
+              />
+            ) : null
           )}
 
-          {/* VIEW: TOPIC VOCABULARY & COLLOCATION BANK */}
+          {/* VIEW: TOPIC VOCABULARY & COLLOCATION BANK (LANGUAGE ISOLATED) */}
           {activeTab === 'vocab-bank' && (
-            <IeltsVocabHub
-              voiceLangCode={course.voiceLangCode}
-              onGainXp={onGainXp}
-            />
+            isEnglishIelts ? (
+              <IeltsVocabHub
+                voiceLangCode={course.voiceLangCode}
+                onGainXp={onGainXp}
+              />
+            ) : nonEnglishMeta ? (
+              <MultiLangVocabHub
+                course={course}
+                meta={nonEnglishMeta}
+                onGainXp={onGainXp}
+              />
+            ) : null
           )}
 
-          {/* VIEW: IELTS BAND SCORE CALCULATOR */}
+          {/* VIEW: CERTIFICATE / BAND SCORE CALCULATOR (LANGUAGE ISOLATED) */}
           {activeTab === 'band-calculator' && (
-            <IeltsBandCalculator
-              initialTrack={examModuleTrack}
-            />
+            isEnglishIelts ? (
+              <IeltsBandCalculator
+                initialTrack={examModuleTrack}
+              />
+            ) : nonEnglishMeta ? (
+              <MultiLangScoreCalculator
+                course={course}
+                meta={nonEnglishMeta}
+              />
+            ) : null
           )}
 
           {/* VIEW: PRACTICE QUESTIONS (ALL / LISTENING / READING / WRITING / SPEAKING) */}
@@ -2084,7 +2443,7 @@ export const AcademicExamView: React.FC<AcademicExamViewProps> = ({ course, onGa
                   <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs space-y-3">
                     <div className="flex items-center gap-2 text-xs font-bold text-slate-900 uppercase tracking-wide">
                       <BookOpen className="w-4 h-4 text-indigo-600" />
-                      <span>Cấu trúc 4 kỹ năng đề thi</span>
+                      <span>Cấu trúc đề thi {examShortName} ({course.vietnameseName})</span>
                     </div>
                     <div className="space-y-2 text-xs text-slate-600">
                       {activeExam.formatSections.map((sec, idx) => (
@@ -2098,7 +2457,11 @@ export const AcademicExamView: React.FC<AcademicExamViewProps> = ({ course, onGa
                   <div className="bg-amber-50/50 rounded-2xl border border-amber-200 p-5 shadow-xs space-y-3">
                     <div className="flex items-center gap-2 text-xs font-bold text-amber-950 uppercase tracking-wide">
                       <Sparkles className="w-4 h-4 text-amber-600" />
-                      <span>Chiến lược đạt Band 8.0+ từ Giám Khảo</span>
+                      <span>
+                        {isEnglishIelts
+                          ? 'Chiến lược đạt Band 8.0+ từ Giám Khảo'
+                          : `Chiến lược đạt điểm cao ${examShortName} (${activeExam.targetLevel})`}
+                      </span>
                     </div>
                     <div className="space-y-2 text-xs text-amber-950">
                       {activeExam.strategyTips.map((tip, idx) => (
@@ -2123,7 +2486,7 @@ export const AcademicExamView: React.FC<AcademicExamViewProps> = ({ course, onGa
                           Văn Bản Bài Đọc / Bản Băng Nghe (Passage & Transcripts)
                         </span>
                       </div>
-                      <span className="text-[11px] font-mono text-slate-500">IELTS on Computer</span>
+                      <span className="text-[11px] font-mono text-slate-500">{examShortName} Computer Test</span>
                     </div>
 
                     <div className="mt-4 space-y-6 text-xs sm:text-sm text-slate-800 leading-relaxed font-sans">
@@ -2158,10 +2521,10 @@ export const AcademicExamView: React.FC<AcademicExamViewProps> = ({ course, onGa
                   <div className="flex items-center justify-between pb-4 border-b border-slate-100">
                     <div>
                       <h2 className="text-base font-bold text-slate-900">
-                        Câu Hỏi Mô Phỏng & Bẫy Đề Thi Thực Tế ({currentTestSet?.code || 'Cambridge'})
+                        Câu Hỏi Mô Phỏng & Bẫy Đề Thi Thực Tế ({currentTestSet?.code || examShortName})
                       </h2>
                       <p className="text-xs text-slate-500 mt-0.5">
-                        Làm quen với các dạng câu hỏi Cambridge thực tế kèm giải thích phân tích bẫy chi tiết
+                        Làm quen với các dạng câu hỏi {examShortName} ({course.vietnameseName}) thực tế kèm giải thích phân tích bẫy chi tiết
                       </p>
                     </div>
                     <span className="text-xs font-semibold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-lg border border-indigo-200">
@@ -2170,6 +2533,38 @@ export const AcademicExamView: React.FC<AcademicExamViewProps> = ({ course, onGa
                   </div>
 
                   <div className="divide-y divide-slate-100 mt-2">
+                    {activeTab === 'writing' && writingPrompts.length > 0 && (
+                      <div className="py-4 space-y-4">
+                        <div className="p-4 rounded-2xl bg-gradient-to-r from-indigo-900 via-slate-900 to-indigo-950 text-white shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border border-indigo-700/50">
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              <span className="text-[10px] font-black px-2 py-0.5 rounded bg-amber-400 text-slate-950 uppercase font-mono">
+                                OFFICIAL WRITING VISUAL CHART
+                              </span>
+                              <span className="text-xs font-semibold text-amber-200">
+                                Đồ thị &amp; số liệu chuẩn hóa 100%
+                              </span>
+                            </div>
+                            <h4 className="text-sm font-bold text-white">
+                              Biểu Đồ Trực Quan Cho Đề Thi Viết ({writingPrompts[selectedWritingTaskIndex]?.title || examShortName})
+                            </h4>
+                            <p className="text-xs text-slate-300">
+                              Tất cả đề thi viết đều có biểu đồ hình ảnh/sơ đồ số liệu. Bạn có thể phóng to toàn màn hình, mở bảng trích xuất số liệu hoặc sao chép nhanh các điểm mấu chốt để đưa vào bài làm.
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => setActiveTab('writing-lab')}
+                            className="shrink-0 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl shadow-md transition-all cursor-pointer flex items-center gap-1.5"
+                          >
+                            <PenTool className="w-4 h-4" />
+                            <span>Vào Phòng Luyện Viết Chuyên Sâu</span>
+                          </button>
+                        </div>
+
+                        {/* Interactive Visual Chart */}
+                        <WritingChartViewer prompt={writingPrompts[selectedWritingTaskIndex] || writingPrompts[0]} />
+                      </div>
+                    )}
                     {filteredQuestions.map((q, qIdx) => {
                       const userChoice = selectedAnswers[qIdx];
                       const isSubmitted = submittedQuestions[qIdx];
@@ -2268,7 +2663,7 @@ export const AcademicExamView: React.FC<AcademicExamViewProps> = ({ course, onGa
                                 <div className="p-3 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-950 space-y-1">
                                   <div className="font-bold text-amber-800 flex items-center gap-1.5">
                                     <ShieldAlert className="w-3.5 h-3.5 text-amber-600" />
-                                    <span>Phân tích bẫy đề thi Cambridge (Trap Analysis):</span>
+                                    <span>Phân tích bẫy đề thi {examShortName} (Trap Analysis):</span>
                                   </div>
                                   <p className="leading-relaxed">{q.trapAnalysis}</p>
                                 </div>
@@ -2305,6 +2700,17 @@ export const AcademicExamView: React.FC<AcademicExamViewProps> = ({ course, onGa
             </div>
           )}
         </>
+      )}
+
+      {/* 100% REAL OFFICIAL IELTS EXAM SIMULATOR MODAL (ONLY FOR ENGLISH IELTS) */}
+      {isOfficialFullExamOpen && isEnglishIelts && (
+        <OfficialRealExamSimulator
+          onClose={() => setIsOfficialFullExamOpen(false)}
+          onGainXp={onGainXp}
+          onExamCompleted={onExamCompleted}
+          initialTestSet={currentTestSet}
+          availableTestSets={availableTestSets}
+        />
       )}
     </div>
   );

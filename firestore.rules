@@ -1,0 +1,164 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // =========================================================
+    // Core Helper Primitives
+    // =========================================================
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isValidEmail(email) {
+      return email is string && email.size() >= 3 && email.size() <= 256 && email.matches('^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$');
+    }
+
+    function isBootstrappedAdmin() {
+      return isSignedIn() &&
+        request.auth.token.email == 'daigia170904@gmail.com' &&
+        request.auth.token.email_verified == true;
+    }
+
+    function isAdmin() {
+      return isBootstrappedAdmin() || (
+        isSignedIn() &&
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    // =========================================================
+    // Entity Validators
+    // =========================================================
+    function isValidUserProfile(data) {
+      let allowedKeys = [
+        'uid', 'email', 'displayName', 'photoURL', 'role',
+        'selectedLanguageId', 'xp', 'dailyXpGoal', 'todayXp', 'todayDate',
+        'streak', 'lastActiveDate', 'examsCompleted', 'bonusWordsMastered',
+        'targetBand', 'voiceSpeed', 'soundEnabled',
+        'completedLessonIds', 'unlockedAchievementIds',
+        'createdAt', 'updatedAt'
+      ];
+      return data.keys().hasAll(allowedKeys) &&
+        data.keys().hasOnly(allowedKeys) &&
+        isValidId(data.uid) &&
+        isValidEmail(data.email) &&
+        data.displayName is string && data.displayName.size() >= 1 && data.displayName.size() <= 100 &&
+        data.photoURL is string && data.photoURL.size() <= 500 &&
+        data.role is string && data.role.size() <= 20 && data.role in ['student', 'teacher', 'admin'] &&
+        data.selectedLanguageId is string && data.selectedLanguageId.size() <= 32 &&
+        data.selectedLanguageId in ['english', 'chinese', 'japanese', 'korean', 'french', 'german', 'spanish'] &&
+        data.xp is number && data.xp >= 0 && data.xp <= 10000000 &&
+        data.dailyXpGoal is number && data.dailyXpGoal >= 10 && data.dailyXpGoal <= 5000 &&
+        data.todayXp is number && data.todayXp >= 0 && data.todayXp <= 100000 &&
+        data.todayDate is string && data.todayDate.size() >= 1 && data.todayDate.size() <= 20 &&
+        data.streak is number && data.streak >= 0 && data.streak <= 10000 &&
+        data.lastActiveDate is string && data.lastActiveDate.size() <= 20 &&
+        data.examsCompleted is number && data.examsCompleted >= 0 && data.examsCompleted <= 10000 &&
+        data.bonusWordsMastered is number && data.bonusWordsMastered >= 0 && data.bonusWordsMastered <= 100000 &&
+        data.targetBand is string && data.targetBand.size() >= 1 && data.targetBand.size() <= 32 &&
+        data.voiceSpeed is number && data.voiceSpeed >= 0.5 && data.voiceSpeed <= 2.0 &&
+        data.soundEnabled is bool &&
+        data.completedLessonIds is list && data.completedLessonIds.size() <= 100 &&
+        (data.completedLessonIds.size() == 0 || (data.completedLessonIds[0] is string && data.completedLessonIds[0].size() <= 64)) &&
+        data.unlockedAchievementIds is list && data.unlockedAchievementIds.size() <= 50 &&
+        (data.unlockedAchievementIds.size() == 0 || (data.unlockedAchievementIds[0] is string && data.unlockedAchievementIds[0].size() <= 64)) &&
+        data.createdAt is timestamp &&
+        data.updatedAt is timestamp;
+    }
+
+    function isValidExamRecord(data) {
+      let allowedKeys = [
+        'examId', 'userId', 'examTitle', 'overallBand',
+        'listeningScore', 'readingScore', 'writingWords', 'createdAt'
+      ];
+      return data.keys().hasAll(allowedKeys) &&
+        data.keys().hasOnly(allowedKeys) &&
+        isValidId(data.examId) &&
+        isValidId(data.userId) &&
+        data.examTitle is string && data.examTitle.size() >= 1 && data.examTitle.size() <= 200 &&
+        data.overallBand is number && data.overallBand >= 0 && data.overallBand <= 9.0 &&
+        data.listeningScore is number && data.listeningScore >= 0 && data.listeningScore <= 40 &&
+        data.readingScore is number && data.readingScore >= 0 && data.readingScore <= 40 &&
+        data.writingWords is number && data.writingWords >= 0 && data.writingWords <= 10000 &&
+        data.createdAt is timestamp;
+    }
+
+    // =========================================================
+    // Collection Rules
+    // =========================================================
+
+    // Boot connectivity check path
+    match /test/{docId} {
+      allow get: if isValidId(docId);
+      allow list, write: if false;
+    }
+
+    // Admin registry collection
+    match /admins/{adminId} {
+      allow get: if isSignedIn() && isValidId(adminId) && (isOwner(adminId) || isAdmin());
+      allow list: if isBootstrappedAdmin();
+      allow write: if false;
+    }
+
+    // User Profiles
+    match /users/{userId} {
+      allow get: if isSignedIn() && isValidId(userId) && (isOwner(userId) || isAdmin());
+      allow list: if isSignedIn() && (resource.data.uid == request.auth.uid || isBootstrappedAdmin());
+
+      allow create: if isSignedIn() &&
+        isValidId(userId) &&
+        (isOwner(userId) || isAdmin()) &&
+        isValidUserProfile(incoming()) &&
+        incoming().uid == userId &&
+        (incoming().role == 'student' || isAdmin()) &&
+        incoming().createdAt == request.time &&
+        incoming().updatedAt == request.time;
+
+      allow update: if isSignedIn() &&
+        isValidId(userId) &&
+        isValidUserProfile(incoming()) &&
+        (isOwner(userId) || isAdmin()) &&
+        incoming().uid == existing().uid &&
+        incoming().createdAt == existing().createdAt &&
+        incoming().updatedAt == request.time &&
+        (incoming().role == existing().role || isAdmin());
+
+      allow delete: if isSignedIn() && isValidId(userId) && isAdmin();
+
+      // User Exam History Subcollection
+      match /examHistory/{examId} {
+        allow get: if isSignedIn() && isValidId(userId) && isValidId(examId) && (isOwner(userId) || isAdmin());
+        allow list: if isSignedIn() && isValidId(userId) && (isOwner(userId) || isBootstrappedAdmin());
+
+        allow create: if isSignedIn() &&
+          isValidId(userId) &&
+          isValidId(examId) &&
+          (isOwner(userId) || isAdmin()) &&
+          isValidExamRecord(incoming()) &&
+          incoming().examId == examId &&
+          incoming().userId == userId &&
+          incoming().createdAt == request.time;
+
+        allow update: if false;
+
+        allow delete: if isSignedIn() && isValidId(userId) && isValidId(examId) && (isOwner(userId) || isAdmin());
+      }
+    }
+  }
+}

@@ -3,7 +3,7 @@ import { LanguageCourse } from '../curriculum';
 export const chineseCourse: LanguageCourse = {
   id: 'chinese',
   name: 'Chinese (Mandarin)',
-  nativeName: '中文 (Zhōngwén)',
+  nativeName: 'Zhongwen (Tiếng Trung Phổ Thông)',
   vietnameseName: 'Tiếng Trung (Quan Thoại)',
   flagEmoji: '🇨🇳',
   flagColor: '#dc2626',
@@ -11,7 +11,7 @@ export const chineseCourse: LanguageCourse = {
   scriptType: 'Chữ Hán giản thể & Pinyin',
   examInfo: [
     {
-      examName: 'HSK (Hànyǔ Shuǐpíng Kǎoshì - 汉语水平考试)',
+      examName: 'HSK (Hanyu Shuiping Kaoshi Cap 1-6)',
       targetLevel: 'HSK 3 - HSK 5 / HSKK',
       overview: 'Hệ thống kỳ thi năng lực tiếng Hán tiêu chuẩn quốc tế do Bộ Giáo dục Trung Quốc tổ chức, là điều kiện tiên quyết xin học bổng du học CSC và ứng tuyển các tập đoàn FDI Trung Quốc.',
       formatSections: [

@@ -1,8 +1,10 @@
 import { ExamQuestion, IeltsTestSet } from '../data/curriculum';
+import { buildFullSimulatorPaperFromTestSet } from './ieltsMasteryEngine';
 
 export type MockExamSkillMode = 'all-skills' | 'listening' | 'reading' | 'writing' | 'speaking';
-export type MockExamDuration = 15 | 25 | 40;
+export type MockExamDuration = 15 | 25 | 40 | 60 | 165;
 export type MockExamModule = 'academic' | 'general-training';
+export type MockExamTimingMode = 'official-full' | 'standard-sim' | 'rapid-drill';
 
 export interface MockExamConfig {
   skillMode: MockExamSkillMode;
@@ -10,6 +12,7 @@ export interface MockExamConfig {
   durationMinutes: MockExamDuration;
   sourceSetId?: string; // 'all' or specific test set ID
   examModule: MockExamModule;
+  timingMode?: MockExamTimingMode;
 }
 
 export interface MockExamSession {
@@ -67,7 +70,9 @@ export function getAllAvailableQuestions(testSets: IeltsTestSet[], fallbackQuest
   const seenIds = new Set<string>();
 
   for (const set of testSets) {
-    for (const q of set.questions) {
+    const fullPaper = buildFullSimulatorPaperFromTestSet(set);
+    const setQuestions = [...fullPaper.listening40, ...fullPaper.reading40];
+    for (const q of setQuestions) {
       const qKey = q.id || `${q.skill || 'gen'}-${q.question.slice(0, 30)}`;
       if (!seenIds.has(qKey)) {
         seenIds.add(qKey);
@@ -100,8 +105,9 @@ export function createMockExamSession(
   // Filter by test set if specified
   if (config.sourceSetId && config.sourceSetId !== 'all') {
     const matchedSet = testSets.find(s => s.id === config.sourceSetId || s.code === config.sourceSetId);
-    if (matchedSet && matchedSet.questions.length > 0) {
-      pool = matchedSet.questions;
+    if (matchedSet) {
+      const fullPaper = buildFullSimulatorPaperFromTestSet(matchedSet);
+      pool = [...fullPaper.listening40, ...fullPaper.reading40];
     }
   } else if (config.examModule) {
     // Filter questions by module appropriateness

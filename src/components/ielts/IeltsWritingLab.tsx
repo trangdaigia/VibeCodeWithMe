@@ -14,6 +14,8 @@ import {
   ArrowRight
 } from 'lucide-react';
 import { WritingModelPrompt } from '../../data/curriculum';
+import { WritingChartViewer } from '../exam/WritingChartViewer';
+import { evaluateWritingBy4Criteria } from '../../utils/ieltsMasteryEngine';
 
 interface IeltsWritingLabProps {
   prompts: WritingModelPrompt[];
@@ -247,8 +249,14 @@ export const IeltsWritingLab: React.FC<IeltsWritingLabProps> = ({
 
       {/* Main Two-Column Workspace */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Column (5 cols): Prompt & Scaffolding Guides */}
+        {/* Left Column (5 cols): Visual Chart & Scaffolding Guides */}
         <div className="lg:col-span-5 space-y-4">
+          {/* Visual Chart / Diagram Display */}
+          <WritingChartViewer
+            prompt={activePrompt}
+            onCopyStatSnippet={handleInsertStarter}
+          />
+
           {/* Active Prompt Box */}
           <div className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-xs space-y-3">
             <div className="flex items-center justify-between">
@@ -402,7 +410,22 @@ export const IeltsWritingLab: React.FC<IeltsWritingLabProps> = ({
                 </span>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (activePrompt?.modelAnswer) {
+                      setUserText(activePrompt.modelAnswer);
+                      setHasEvaluated(true);
+                    }
+                  }}
+                  className="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-lg cursor-pointer"
+                  title="Nạp bài mẫu Band 8.5+ vào khung soạn thảo để phân tích cấu trúc 4 tiêu chí"
+                >
+                  <BookOpen className="w-3.5 h-3.5" />
+                  <span>Nạp bài mẫu phân tích thử</span>
+                </button>
+
                 <button
                   onClick={handleCopyText}
                   className="flex items-center gap-1 px-2.5 py-1 text-xs text-slate-600 hover:text-slate-900 border border-slate-200 rounded-lg hover:bg-slate-50 cursor-pointer"
@@ -413,7 +436,10 @@ export const IeltsWritingLab: React.FC<IeltsWritingLabProps> = ({
                 </button>
 
                 <button
-                  onClick={() => setUserText('')}
+                  onClick={() => {
+                    setUserText('');
+                    setHasEvaluated(false);
+                  }}
                   className="flex items-center gap-1 px-2.5 py-1 text-xs text-slate-600 hover:text-rose-600 border border-slate-200 rounded-lg hover:bg-slate-50 cursor-pointer"
                   title="Xóa viết lại"
                 >
@@ -455,8 +481,8 @@ export const IeltsWritingLab: React.FC<IeltsWritingLabProps> = ({
                 onChange={e => setUserText(e.target.value)}
                 placeholder={
                   isTask1
-                    ? 'Bắt đầu viết thư tại đây (ví dụ: Dear Sir or Madam,...)... Chú ý kiểm soát độ dài tối thiểu 150 từ và chia thành các đoạn rõ ràng.'
-                    : 'Bắt đầu bài luận tại đây (Introduction, Body Paragraph 1, Body Paragraph 2, Conclusion)... Mục tiêu tối thiểu 250 từ.'
+                    ? 'Bắt đầu viết bài Task 1 tại đây... Chú ý kiểm soát độ dài tối thiểu 150 từ và chia đoạn rõ ràng (Introduction, Overview, Details).'
+                    : 'Bắt đầu bài luận Task 2 tại đây (Introduction, Body Paragraph 1, Body Paragraph 2, Conclusion)... Mục tiêu tối thiểu 250 từ.'
                 }
                 rows={14}
                 className="w-full p-4 text-xs sm:text-sm font-sans text-slate-900 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-hidden leading-relaxed resize-y placeholder:text-slate-400"
@@ -471,7 +497,7 @@ export const IeltsWritingLab: React.FC<IeltsWritingLabProps> = ({
                   <div className="font-bold">Lỗi Văn Phong Formal: Phát hiện từ viết tắt!</div>
                   <div className="text-[11px] mt-0.5 leading-relaxed">
                     Bạn đang sử dụng các từ viết tắt: <code className="font-mono font-bold text-rose-700 bg-rose-100 px-1 py-0.2 rounded">{foundContractions.join(', ')}</code>.
-                    Trong thư Formal của IELTS General, giám khảo sẽ trừ điểm nặng ở tiêu chí Grammatical Range and Accuracy nếu không viết dạng đầy đủ (ví dụ: thay "don't" bằng "do not", "can't" bằng "cannot").
+                    Trong văn phong học thuật hoặc thư Formal, giám khảo sẽ trừ điểm nếu không viết dạng đầy đủ (thay "don't" bằng "do not", "can't" bằng "cannot").
                   </div>
                 </div>
               </div>
@@ -492,93 +518,99 @@ export const IeltsWritingLab: React.FC<IeltsWritingLabProps> = ({
                 disabled={wordCount === 0}
                 className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 text-white rounded-xl text-xs font-bold shadow-xs transition-colors cursor-pointer flex items-center gap-1.5"
               >
-                <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-                <span>Chấm Điểm Thử Nghiệm</span>
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-300" />
+                <span>Chấm Điểm 4 Tiêu Chí Cambridge (+30 XP)</span>
               </button>
             </div>
 
-            {/* Diagnostic Results Box */}
-            {hasEvaluated && (
-              <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3 mt-3">
-                <div className="flex items-center justify-between pb-2 border-b border-slate-200 text-xs">
-                  <span className="font-bold text-slate-900 uppercase">
-                    Báo Cáo Phân Tích Tiêu Chí Chấm Thi
-                  </span>
-                  <span className="font-bold text-indigo-600">
-                    {wordCount >= targetMinWords ? 'Đủ điều kiện Band 7.0+' : 'Cần bổ sung thêm từ'}
-                  </span>
+            {/* 4-Criteria Analytic Band Rubric Evaluation */}
+            {hasEvaluated && wordCount > 0 && (() => {
+              const rubric = evaluateWritingBy4Criteria(
+                userText,
+                activePrompt.taskType,
+                activePrompt.letterTone !== 'Informal'
+              );
+              return (
+                <div className="p-5 bg-slate-900 text-white rounded-2xl border border-slate-800 space-y-4 mt-3" data-testid="writing-4criteria-report">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
+                    <div>
+                      <div className="text-xs text-indigo-300 font-semibold">
+                        Cambridge Analytic Writing Assessment · {activePrompt.taskType}
+                      </div>
+                      <h4 className="text-sm sm:text-base font-bold text-white mt-0.5">
+                        Bảng Chấm Điểm Chi Tiết 4 Tiêu Chí IELTS Writing
+                      </h4>
+                    </div>
+                    <div className="px-4 py-2 rounded-xl bg-indigo-600/30 border border-indigo-400/40 text-center shrink-0">
+                      <span className="text-[10px] text-indigo-200 uppercase block">Overall Writing Band</span>
+                      <span className="text-2xl font-black text-amber-300 font-mono tabular-nums">
+                        Band {rubric.overallWritingBand.toFixed(1)}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* 4 Sub-scores Grid */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div className="p-3 rounded-xl bg-slate-800/90 border border-slate-700">
+                      <div className="text-[11px] text-slate-400">1. {isTask1 ? 'Task Achievement' : 'Task Response'}</div>
+                      <div className="text-lg font-extrabold text-white font-mono tabular-nums mt-0.5">
+                        Band {rubric.taskAchievementBand.toFixed(1)}
+                      </div>
+                      <div className="text-[10px] text-emerald-400 mt-0.5 tabular-nums">
+                        {rubric.wordCount}/{targetMinWords} từ
+                      </div>
+                    </div>
+
+                    <div className="p-3 rounded-xl bg-slate-800/90 border border-slate-700">
+                      <div className="text-[11px] text-slate-400">2. Coherence &amp; Cohesion</div>
+                      <div className="text-lg font-extrabold text-white font-mono tabular-nums mt-0.5">
+                        Band {rubric.coherenceCohesionBand.toFixed(1)}
+                      </div>
+                      <div className="text-[10px] text-indigo-300 mt-0.5 tabular-nums">
+                        {rubric.paragraphCount} đoạn · {rubric.detectedCohesiveDevices.length} từ nối
+                      </div>
+                    </div>
+
+                    <div className="p-3 rounded-xl bg-slate-800/90 border border-slate-700">
+                      <div className="text-[11px] text-slate-400">3. Lexical Resource</div>
+                      <div className="text-lg font-extrabold text-white font-mono tabular-nums mt-0.5">
+                        Band {rubric.lexicalResourceBand.toFixed(1)}
+                      </div>
+                      <div className="text-[10px] text-amber-300 mt-0.5 tabular-nums">
+                        {rubric.detectedAcademicLexis.length} từ vựng C1/C2
+                      </div>
+                    </div>
+
+                    <div className="p-3 rounded-xl bg-slate-800/90 border border-slate-700">
+                      <div className="text-[11px] text-slate-400">4. Grammatical Range</div>
+                      <div className="text-lg font-extrabold text-white font-mono tabular-nums mt-0.5">
+                        Band {rubric.grammaticalRangeBand.toFixed(1)}
+                      </div>
+                      <div className="text-[10px] text-sky-300 mt-0.5 tabular-nums">
+                        {rubric.detectedComplexGrammar.length} cấu trúc phức
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Detected Structures & Feedback */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                    <div className="p-3 rounded-xl bg-emerald-950/40 border border-emerald-800/60 space-y-1.5">
+                      <div className="font-bold text-emerald-300">Điểm mạnh ghi nhận:</div>
+                      {rubric.strengths.map((s, i) => (
+                        <div key={i} className="text-[11px] text-slate-200 leading-relaxed">• {s}</div>
+                      ))}
+                    </div>
+
+                    <div className="p-3 rounded-xl bg-amber-950/40 border border-amber-800/60 space-y-1.5">
+                      <div className="font-bold text-amber-300">Khuyến nghị nâng Band:</div>
+                      {rubric.improvements.map((imp, i) => (
+                        <div key={i} className="text-[11px] text-slate-200 leading-relaxed">• {imp}</div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                  {/* Criterion 1: Task Response */}
-                  <div className="p-2.5 bg-white rounded-lg border border-slate-200">
-                    <div className="font-bold text-slate-800 flex items-center justify-between">
-                      <span>1. Task Achievement / Response:</span>
-                      {wordCount >= targetMinWords ? (
-                        <Check className="w-3.5 h-3.5 text-emerald-600" />
-                      ) : (
-                        <AlertCircle className="w-3.5 h-3.5 text-rose-500" />
-                      )}
-                    </div>
-                    <div className="text-[11px] text-slate-600 mt-1">
-                      {wordCount >= targetMinWords
-                        ? `Đạt ${wordCount}/${targetMinWords} từ chuẩn. Không bị phạt lỗi Underlength penalty.`
-                        : `Thiếu ${targetMinWords - wordCount} từ. Bị giới hạn điểm Task Achievement ở Band 5.0.`}
-                    </div>
-                  </div>
-
-                  {/* Criterion 2: Coherence & Cohesion */}
-                  <div className="p-2.5 bg-white rounded-lg border border-slate-200">
-                    <div className="font-bold text-slate-800 flex items-center justify-between">
-                      <span>2. Coherence & Cohesion:</span>
-                      {paragraphs.length >= 3 ? (
-                        <Check className="w-3.5 h-3.5 text-emerald-600" />
-                      ) : (
-                        <AlertCircle className="w-3.5 h-3.5 text-amber-500" />
-                      )}
-                    </div>
-                    <div className="text-[11px] text-slate-600 mt-1">
-                      {paragraphs.length >= 3
-                        ? `Phân chia tốt ${paragraphs.length} đoạn văn logic.`
-                        : 'Văn bản cần chia tối thiểu 3-4 đoạn để đạt điểm Coherence.'}
-                      {detectedLinkers.length > 0 && (
-                        <div className="text-indigo-600 font-medium mt-0.5">
-                          Từ nối phát hiện ({detectedLinkers.length}): {detectedLinkers.slice(0, 4).join(', ')}...
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Criterion 3: Tone & Register */}
-                  <div className="p-2.5 bg-white rounded-lg border border-slate-200">
-                    <div className="font-bold text-slate-800 flex items-center justify-between">
-                      <span>3. Văn phong (Tone & Register):</span>
-                      {!hasContractionWarning ? (
-                        <Check className="w-3.5 h-3.5 text-emerald-600" />
-                      ) : (
-                        <AlertCircle className="w-3.5 h-3.5 text-rose-500" />
-                      )}
-                    </div>
-                    <div className="text-[11px] text-slate-600 mt-1">
-                      {hasContractionWarning
-                        ? 'Cảnh báo: Có từ viết tắt trong thư Formal.'
-                        : 'Không có lỗi viết tắt vi phạm quy chuẩn thư trang trọng.'}
-                    </div>
-                  </div>
-
-                  {/* Criterion 4: Lexical Variety */}
-                  <div className="p-2.5 bg-white rounded-lg border border-slate-200">
-                    <div className="font-bold text-slate-800 flex items-center justify-between">
-                      <span>4. Lexical Resource (Từ Vựng):</span>
-                      <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                    </div>
-                    <div className="text-[11px] text-slate-600 mt-1">
-                      Khuyến khích vận dụng các collocation C1/C2 từ danh sách bên trái để nâng điểm lên Band 8.0+.
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
+              );
+            })()}
           </div>
 
           {/* Side-by-side Band 9.0 Model Comparison */}
